@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Customers - SportsPro Technical Support</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>SportsPro Technical Support</h1>
+            <p>Sports management software for the sports enthusiast</p>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="container">
+        <div class="main-panel">
+            <div class="header-section">
+                <h2>Customer Search</h2>
+                <a href="index.html">Home</a>
+            </div>
+            
+            <!-- Search Form -->
+            <div class="search-panel mb-4">
+                <div class="form-group">
+                    <label for="lastName">Last Name:</label>
+                    <div class="search-row">
+                        <input type="text" id="lastName" name="lastName" placeholder="Enter last name">
+                        <button class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Search Results -->
+            <div class="results-panel mb-4">
+                <h3>Results</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamic content will be rendered by customers.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Customer Edit Form (Initially hidden - would be shown when View/Edit is clicked) -->
+            <div class="form-panel">
+                <h3>View/Update Customer</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name:</label>
+                        <input type="text" id="firstName" name="firstName" value="David">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editLastName">Last Name:</label>
+                        <input type="text" id="editLastName" name="editLastName" value="Thompson">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="address">Address:</label>
+                    <input type="text" id="address" name="address" value="123 Main St">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">City:</label>
+                        <input type="text" id="city" name="city" value="New York">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="state">State:</label>
+                        <input type="text" id="state" name="state" value="NY">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="postalCode">Postal Code:</label>
+                        <input type="text" id="postalCode" name="postalCode" value="10001">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="country">Country:</label>
+                        <select id="country" name="country">
+                            <option value="US" selected>United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="MX">Mexico</option>
+                            <!-- Additional countries to be added by students -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone:</label>
+                        <input type="tel" id="phone" name="phone" value="212-555-1212">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" value="david@example.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" value="********">
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary">Update Customer</button>
+                    <button class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 SportsPro, Inc.</p>
+        </div>
+    </footer>
+    <!-- JS file -->
+     <script src="js/customers.js"></script>
+</body>
+</html>

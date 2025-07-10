@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Products - SportsPro Technical Support</title>
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <h1>SportsPro Technical Support</h1>
+        <p>Sports management software for the sports enthusiast</p>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+      <div class="main-panel">
+        <div class="header-section">
+          <h2>Product List</h2>
+          <a href="index.html">Home</a>
+        </div>
+
+        <!-- Product Table -->
+        <div class="table-container mb-4">
+          <table>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Release Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+         <!-- Dynamic content will be rendered by products.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Add Product Form -->
+        <!-- Add Product Form -->
+        <div class="form-panel">
+          <h3>Add Product</h3>
+          <form id="productForm">
+            <div class="form-group">
+              <label for="code">Code:</label>
+              <input type="text" id="code" name="code" />
+            </div>
+
+            <div class="form-group">
+              <label for="name">Name:</label>
+              <input type="text" id="name" name="name" />
+            </div>
+
+            <div class="form-group">
+              <label for="version">Version:</label>
+              <input type="number" id="version" name="version" step="0.1" />
+            </div>
+
+            <div class="form-group">
+              <label for="releaseDate">Release Date:</label>
+              <input type="date" id="releaseDate" name="releaseDate" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Product</button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <p>&copy; 2025 SportsPro, Inc.</p>
+      </div>
+    </footer>
+<!-- JS file -->
+    <script src="js/products.js" ></script>
+  </body>
+</html>

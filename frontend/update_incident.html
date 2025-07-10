@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Incident - SportsPro Technical Support</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>SportsPro Technical Support</h1>
+            <p>Sports management software for the sports enthusiast</p>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="container">
+        <div class="main-panel">
+            <div class="header-section">
+                <h2>Update Incident</h2>
+                <a href="index.html">Home</a>
+            </div>
+            
+            <!-- Technician Selection -->
+            <div class="technician-panel mb-4">
+                <h3>Select Technician</h3>
+                <div class="form-row">
+                    <div class="form-group flex-grow">
+                        <label for="technician">Technician:</label>
+                        <select id="technician" name="technician">
+                            <option value="">-- Select a Technician --</option>
+                            <!-- Added dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary mt-auto">Get Incidents</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Assigned Incidents List -->
+            <div class="incidents-panel mb-4">
+                <h3>Select Incident</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Customer</th>
+                                <th>Product</th>
+                                <th>Date Opened</th>
+                                <th>Title</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Filled dynamically by JavaScript -->
+                        </tbody>
+                        
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Update Incident Form (Initially hidden - shown after selecting an incident) -->
+            <div class="update-panel hidden">
+                <h3>Update Incident</h3>
+                
+                <div class="incident-info mb-4">
+                    <div class="detail-row">
+                        <div class="detail-label">Incident ID:</div>
+                        <div class="detail-value"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Customer:</div>
+                        <div class="detail-value"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Product:</div>
+                        <div class="detail-value"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Date Opened:</div>
+                        <div class="detail-value"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Title:</div>
+                        <div class="detail-value"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" name="description" rows="5"></textarea>
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="closeIncident" name="closeIncident">
+                    <label for="closeIncident">Close this incident</label>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary">Update Incident</button>
+                    <button class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+            
+            <!-- Confirmation Message (Initially hidden - shown after update) -->
+            <div class="success-panel mt-4 hidden">
+                <div class="alert alert-success">
+                    <p></p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 SportsPro, Inc.</p>
+        </div>
+    </footer>
+
+    <script src="js/update_incident.js"></script> <!-- or the correct path -->
+
+</body>
+</html>

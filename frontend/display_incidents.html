@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Incidents - SportsPro Technical Support</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>SportsPro Technical Support</h1>
+            <p>Sports management software for the sports enthusiast</p>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="container">
+        <div class="main-panel">
+            <div class="header-section">
+                <h2>Display Incidents</h2>
+                <a href="index.html">Home</a>
+            </div>
+            
+            <!-- Filter Options -->
+            <div class="filter-panel mb-4">
+                <h3>Filter Incidents</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="technician">Technician:</label>
+                        <select id="technician" name="technician">
+                            <option value="">All Technicians</option>
+                            <!-- Dynamically loaded -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer">Customer:</label>
+                        <select id="customer" name="customer">
+                            <option value="">All Customers</option>
+                            <!-- Dynamically loaded -->
+                           
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="product">Product:</label>
+                        <select id="product" name="product">
+                            <option value="">All Products</option>
+                             <!-- Dynamically loaded -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="status">Status:</label>
+                        <select id="status" name="status">
+                            <option value="">All Statuses</option>
+                            <option value="open">Open</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="filterBtn" class="btn btn-primary">Apply Filters</button>
+            </div>
+            
+            <!-- Incidents Table -->
+            <div class="incidents-panel mb-4">
+                <h3>Incidents</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Customer</th>
+                                <th>Product</th>
+                                <th>Technician</th>
+                                <th>Date Opened</th>
+                                <th>Date Closed</th>
+                                <th>Title</th>
+                            </tr>
+                        </thead>
+                        <tbody id="incidentsTableBody">
+                            <!-- dynamic data -->
+                         
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Incident Details (Initially hidden - shown when incident is selected) -->
+            <div class="incident-details-panel">
+                <h3>Incident <span id="detailIncidentID">#</span> Details</h3>
+                <div class="incident-details">
+                    <div class="detail-row">
+                        <div class="detail-label">Customer:</div>
+                        <div class="detail-value" id="detaileCustomer">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Product:</div>
+                        <div class="detail-value" id="detailProduct">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Technician:</div>
+                        <div class="detail-value" id="detailTechnician">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Date Opened:</div>
+                        <div class="detail-value" id="detailDateOpened">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Date Closed:</div>
+                        <div class="detail-value" id="detailDateClosed">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Title:</div>
+                        <div class="detail-value" id="detailTitle">-</div>
+                    </div>
+                    <div class="detail-row full-width">
+                        <div class="detail-label">Description:</div>
+                        <div class="detail-value description-box" id="detailDescription">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 SportsPro, Inc.</p>
+        </div>
+    </footer>
+
+    <script src="js/display_incidents.js"></script>
+</body>
+</html>
