@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres123
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - ./data:/var/lib/postgresql/data
     networks:
@@ -26,6 +26,8 @@ services:
     container_name: new-backend1
     env_file:
       - ./backend/.env
+    environment:
+      - SERVER_ID=new-backend1
     ports:
       - "3001:8001"
     volumes:
@@ -42,6 +44,8 @@ services:
     container_name: new-backend2
     env_file:
       - ./backend/.env
+    environment:
+      - SERVER_ID=new-backend2
     ports:
       - "3002:8001"
     volumes:
@@ -58,6 +62,8 @@ services:
     container_name: new-backend3
     env_file:
       - ./backend/.env
+    environment:
+      - SERVER_ID=new-backend3
     ports:
       - "3003:8001"
     volumes:

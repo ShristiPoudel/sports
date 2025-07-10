@@ -12,6 +12,14 @@ import countryRoute from "./routes/countryRoute.js";
 const app = express();
 const port = process.env.PORT || 8001;
 
+const serverId = process.env.SERVER_ID || "unknown-backend";
+
+// Add X-Server-ID header to all responses
+app.use((req, res, next) => {
+    res.setHeader('X-Server-ID', serverId);
+    next();
+});
+
 //middlewares
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
