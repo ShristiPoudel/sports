@@ -79,7 +79,7 @@ Example:
 API are tested using thunder client.
 
 ## API DOCUMENTATION
-BASE URL: http://localhost:8001/api
+BASE URL: https://localhost:8443/api
 
 | ENDPOINT                         | METHOD | DESCRIPTION                                   |
 |----------------------------------|-------|------------------------------------------------|
