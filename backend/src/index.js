@@ -1,7 +1,13 @@
-import express from "express"
+import express from "express";
 import  "dotenv/config";
 import cors from "cors";
 import connection from "./config/connection.js";
+import productRoute from "./routes/productRoute.js";
+import technicianRoute from "./routes/technicianRoute.js";
+import customerRoute from "./routes/customerRoute.js";
+import registrationRoute from "./routes/registrationRoute.js";
+import incidentRoute from './routes/incidentRoute.js';
+import countryRoute from "./routes/countryRoute.js";
 
 const app = express();
 const port = process.env.PORT || 8001;
@@ -12,9 +18,15 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.static("public"));
 app.use(cors());
 
-//routes
 
-//testing routes
+//routes
+app.use("/api/products", productRoute);
+app.use("/api/technicians", technicianRoute);
+app.use("/api/customers", customerRoute);
+app.use('/api/registrations', registrationRoute);
+app.use('/api/incidents', incidentRoute);
+app.use('/api/countries', countryRoute);
+
 app.get("/",(req,res)=>{
     res.send("Backend is working");
 })
@@ -25,7 +37,7 @@ app.listen(port, async()=>{
 
     try{
         await connection.authenticate();
-        connection.sync();
+        connection.sync({ alter: true });
         console.log(" Sucessfully connected to database")
     }
     catch(err){
