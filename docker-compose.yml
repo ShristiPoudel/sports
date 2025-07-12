@@ -21,6 +21,17 @@ services:
       retries: 5
       start_period: 20s
 
+  seeder:
+    build: ./backend
+    container_name: data-seeder
+    command: node seed.js
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - new-net
+    restart: "no" # runs only once, doesn't restart
+
   backend1:
     build: ./backend
     container_name: new-backend1
@@ -34,8 +45,8 @@ services:
       - ./backend:/app
       - /app/node_modules
     depends_on:
-      db:
-        condition: service_healthy
+      seeder:
+        condition: service_completed_successfully
     networks:
       - new-net
 
@@ -52,8 +63,8 @@ services:
       - ./backend:/app
       - /app/node_modules
     depends_on:
-      db:
-        condition: service_healthy
+      seeder:
+        condition: service_completed_successfully
     networks:
       - new-net
 
@@ -70,8 +81,8 @@ services:
       - ./backend:/app
       - /app/node_modules
     depends_on:
-      db:
-        condition: service_healthy
+      seeder:
+        condition: service_completed_successfully
     networks:
       - new-net
 
