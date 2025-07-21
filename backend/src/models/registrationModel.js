@@ -1,3 +1,4 @@
+//product registration
 import { DataTypes } from 'sequelize';
 import connection from "../config/connection.js";
 

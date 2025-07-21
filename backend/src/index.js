@@ -2,12 +2,15 @@ import express from "express";
 import  "dotenv/config";
 import cors from "cors";
 import connection from "./config/connection.js";
+
 import productRoute from "./routes/productRoute.js";
 import technicianRoute from "./routes/technicianRoute.js";
 import customerRoute from "./routes/customerRoute.js";
 import registrationRoute from "./routes/registrationRoute.js";
 import incidentRoute from './routes/incidentRoute.js';
 import countryRoute from "./routes/countryRoute.js";
+import authRoutes from "./routes/authRoutes.js"
+import userRoute from "./routes/userRoute.js"
 
 const app = express();
 const port = process.env.PORT || 8001;
@@ -34,6 +37,9 @@ app.use("/api/customers", customerRoute);
 app.use('/api/registrations', registrationRoute);
 app.use('/api/incidents', incidentRoute);
 app.use('/api/countries', countryRoute);
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoute)
+
 
 app.get("/",(req,res)=>{
     res.send("Backend is working");
