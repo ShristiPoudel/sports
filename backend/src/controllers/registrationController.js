@@ -28,16 +28,31 @@ export default class RegistrationController {
   async registerProduct(req, res) {
     const { customerID, productCode } = req.body;
 
-    if (!customerID || !productCode) {
-      return res.status(400).json({ success: false, message: "Customer ID and Product Code are required" });
-    }
-
     try {
-      const registration = await Registration.create({ customerID, productCode });
-      res.status(201).json({ success: true, message: "Product registered", data: registration });
+        const customer = await Customer.findByPk(customerID);
+        if (!customer) {
+            return res.status(404).json({ success: false, message: "Customer not found" });
+        }
+
+        const product = await Product.findByPk(productCode);
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
+
+        const existingRegistration = await Registration.findOne({
+            where: { customerID, productCode }
+        });
+        if (existingRegistration) {
+            return res.status(400).json({ success: false, message: "Product already registered by this customer" });
+        }
+
+        const registration = await Registration.create({ customerID, productCode });
+        res.status(201).json({ success: true, message: "Product registered", data: registration });
+
     } catch (err) {
-      console.error("Register product error:", err);
-      res.status(500).json({ success: false, message: err.message });
+        console.error("Register product error:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
-  }
+}
+
 }

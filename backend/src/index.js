@@ -11,6 +11,7 @@ import incidentRoute from './routes/incidentRoute.js';
 import countryRoute from "./routes/countryRoute.js";
 import authRoutes from "./routes/authRoutes.js"
 import userRoute from "./routes/userRoute.js"
+import profileRoute from "./routes/profileRoute.js";
 
 const app = express();
 const port = process.env.PORT || 8001;
@@ -39,6 +40,7 @@ app.use('/api/incidents', incidentRoute);
 app.use('/api/countries', countryRoute);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoute)
+app.use("/api/profile", profileRoute);
 
 
 app.get("/",(req,res)=>{

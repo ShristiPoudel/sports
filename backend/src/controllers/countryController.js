@@ -1,4 +1,5 @@
 import { Country } from '../models/index.js';
+import { validationResult } from 'express-validator';
 
 export default class CountryController {
 
@@ -15,13 +16,23 @@ export default class CountryController {
 
   // POST /api/countries - Add a new country
   async createCountry(req, res) {
+    
     const { countryCode, countryName } = req.body;
 
-    if (!countryCode || !countryName) {
-      return res.status(400).json({ success: false, message: "countryCode and countryName are required" });
-    }
-
     try {
+
+        // Check for duplicate countryCode
+        const exists = await Country.findOne({ where: { countryCode } });
+        if (exists) {
+          return res.status(409).json({ success: false, message: "Country with this code already exists" });
+        }
+  
+        // Check for duplicate countryName
+        const nameExists = await Country.findOne({ where: { countryName } });
+        if (nameExists) {
+          return res.status(409).json({ success: false, message: "Country name already exists" });
+        }
+        
       const data = await Country.create({ countryCode, countryName });
       res.status(201).json({ success: true, message: "Country created", data: data });
     } catch (err) {

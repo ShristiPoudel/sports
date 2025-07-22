@@ -2,7 +2,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
-import { validationResult } from "express-validator";
 import "dotenv/config";
 import { generateAccessToken, generateRefreshToken } from "../utils/generateToken.js";
 import UserToken from "../models/userTokenModel.js"; // adjust path if needed
@@ -12,11 +11,7 @@ const JWT_SEC = process.env.JWT_SECRET;
 
 export default class AuthController {
   async register(req, res) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
+   
     try {
       const { username, email, password, role } = req.body;
 
@@ -50,11 +45,7 @@ export default class AuthController {
   }
 
   async login(req, res) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
+   
     try {
       const { email, password } = req.body;
 
@@ -98,10 +89,7 @@ export default class AuthController {
   async refreshAccessToken(req,res){
     const { refreshToken } = req.body;
 
-    if (!refreshToken) {
-      return res.status(400).json({ message: "Refresh token is required" });
-    }
-
+    
     // Find token in DB
   const storedToken = await UserToken.findOne({ where: { token: refreshToken } });
 
@@ -131,9 +119,7 @@ export default class AuthController {
 async logout(req, res) {
   const { refreshToken } = req.body;
 
-  if (!refreshToken) {
-    return res.status(400).json({ message: "Refresh token required" });
-  }
+  
 
   try {
     // Delete the refresh token from DB

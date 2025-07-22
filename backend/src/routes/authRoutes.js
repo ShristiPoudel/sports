@@ -1,27 +1,43 @@
+// routes/authRoutes.js
 
 import { Router } from "express";
-import { body } from "express-validator";
 import AuthController from "../controllers/authController.js";
+import validateRequest from "../middlewares/validateRequest.js";
+import {
+  validateRegister,
+  validateLogin,
+  validateRefreshOrLogout,
+} from "../validations/authValidation.js";
 
 const router = Router();
-const authContoller = new AuthController();
+const authController = new AuthController();
 
-const validateRegister = [
-  body("username").notEmpty().withMessage("Username is required"),
-  body("email").isEmail().withMessage("Invalid email"),
-  body("password").isLength({ min: 8 }).withMessage("Password must be at least 8 characters"),
-  body("role").notEmpty().withMessage("Role is required"),
-];
+router.post(
+  "/register",
+  validateRegister,
+  validateRequest,
+  (req, res) => authController.register(req, res)
+);
 
-const validateLogin = [
-  body("email").isEmail().withMessage("Invalid email"),
-  body("password").notEmpty().withMessage("Password is required"),
-];
+router.post(
+  "/login",
+  validateLogin,
+  validateRequest,
+  (req, res) => authController.login(req, res)
+);
 
-router.post("/register", validateRegister, (req, res) => authContoller.register(req, res));
-router.post("/login", validateLogin, (req, res) => authContoller.login(req, res));
-router.post("/refresh", (req,res) =>authContoller.refreshAccessToken(req,res));
-router.post("/logout", (req, res) => authContoller.logout(req, res));
+router.post(
+  "/refresh",
+  validateRefreshOrLogout,
+  validateRequest,
+  (req, res) => authController.refreshAccessToken(req, res)
+);
 
+router.post(
+  "/logout",
+  validateRefreshOrLogout,
+  validateRequest,
+  (req, res) => authController.logout(req, res)
+);
 
 export default router;

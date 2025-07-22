@@ -109,4 +109,40 @@ async updateIncident(req, res) {
   }
 }
 
+
+// Get incidents assigned to the logged-in technician
+async getAssignedIncidents(req, res) {
+  const { userID, role } = req.user;
+
+  if (role !== 'technician') {
+    return res.status(403).json({ success: false, message: "Access denied" });
+  }
+
+  try {
+    const incidents = await Incident.findAll({
+      where: { techID: userID },
+      include: [Customer, Product, Technician],
+    });
+
+    if (!incidents || incidents.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No incidents assigned to you currently",
+        data: [],
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Assigned incidents retrieved successfully",
+      data: incidents,
+    });
+  } catch (err) {
+    console.error("Fetch assigned incidents error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+}
+
+
+
 }
