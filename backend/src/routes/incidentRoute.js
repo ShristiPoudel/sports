@@ -17,7 +17,7 @@ router.get(
   "/",
   verifyToken,
   authorizeRoles("admin", "technician"),
-  (req, res) => controller.getAllIncidents(req, res)
+  (req, res,next ) => controller.getAllIncidents(req, res,next)
 );
 
 //get incident by id
@@ -25,7 +25,7 @@ router.get(
   "/:id",
   verifyToken,
   authorizeRoles("admin", "technician"),
-  (req, res) => controller.getIncidentById(req, res)
+  (req, res,next) => controller.getIncidentById(req, res,next)
 );
 
 //post incident
@@ -35,7 +35,7 @@ router.post(
   authorizeRoles("admin", "customer"),
   createIncidentValidation,
   validateRequest,
-  (req, res) => controller.createIncident(req, res)
+  (req, res,next) => controller.createIncident(req, res,next)
 );
 
 //assign technician
@@ -45,7 +45,7 @@ router.put(
   authorizeRoles("admin"),
   assignTechnicianValidation,
   validateRequest,
-  (req, res) => controller.assignTechnician(req, res)
+  (req, res,next) => controller.assignTechnician(req, res,next)
 );
 
 // PUT update incident details (description, close)
@@ -55,12 +55,12 @@ router.put(
   authorizeRoles("admin", "technician"),
   updateIncidentValidation,
   validateRequest,
-  (req, res) => controller.updateIncident(req, res)
+  (req, res,next) => controller.updateIncident(req, res,next)
 );
 
 // GET /api/incidents/assigned - Technician's assigned incidents
-router.get("/assigned", verifyToken, authorizeRoles("technician"), (req, res) =>
-  controller.getAssignedIncidents(req, res)
+router.get("/assigned", verifyToken, authorizeRoles("technician"), (req, res,next) =>
+  controller.getAssignedIncidents(req, res,next)
 );
 
 export default router;

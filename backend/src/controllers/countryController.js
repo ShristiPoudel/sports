@@ -4,18 +4,17 @@ import { validationResult } from 'express-validator';
 export default class CountryController {
 
   // GET /api/countries - Get all countries
-  async getAllCountries(req, res) {
+  async getAllCountries(req, res,next) {
     try {
       const countries = await Country.findAll();
       res.json({ success: true, data: countries });
     } catch (err) {
-      console.error("Error fetching countries:", err);
-      res.status(500).json({ success: false, message: err.message });
+      next(err);
     }
   }
 
   // POST /api/countries - Add a new country
-  async createCountry(req, res) {
+  async createCountry(req, res, next) {
     
     const { countryCode, countryName } = req.body;
 
@@ -36,8 +35,7 @@ export default class CountryController {
       const data = await Country.create({ countryCode, countryName });
       res.status(201).json({ success: true, message: "Country created", data: data });
     } catch (err) {
-      console.error("Error creating country:", err);
-      res.status(500).json({ success: false, message: err.message });
+      next(err);
     }
   }
 }

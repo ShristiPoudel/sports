@@ -13,7 +13,7 @@ const registrationController = new RegistrationController();
 router.get('/:customerId',
     verifyToken,
     authorizeRoles('admin', 'customer'),
-     (req, res) => registrationController.getRegistrationsByCustomer(req, res));
+     (req, res, next) => registrationController.getRegistrationsByCustomer(req, res, next));
 
 // POST /api/registrations
 router.post('/', 
@@ -21,6 +21,6 @@ router.post('/',
     authorizeRoles('admin', 'customer'),
     registerProductValidation,
     validateRequest,
-    (req, res) => registrationController.registerProduct(req, res));
+    (req, res, next) => registrationController.registerProduct(req, res, next));
 
 export default router;

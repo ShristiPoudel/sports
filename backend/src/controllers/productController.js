@@ -2,33 +2,28 @@ import { Product } from "../models/index.js";
 
 export default class ProductController {
   //add product
-  async addProduct(req, res) {
+  async addProduct(req, res,next) {
     try {
       const data = await Product.create(req.body);
       console.log(data);
       res.status(201).json(data);
     } catch (err) {
-      console.error("Product creation error:", err);
-      res.status(400).json({
-        success: false,
-        message: err.message,
-      });
+      next(err);
     }
   }
 
   // Get all products
-  async getAllProducts(req, res) {
+  async getAllProducts(req, res, next) {
     try {
       const products = await Product.findAll();
       res.json({ success: true, data: products });
     } catch (err) {
-      console.error("Fetch all products error:", err);
-      res.status(500).json({ success: false, message: err.message });
+      next(err);
     }
   }
 
   //get product by their code
-  async getProductByCode(req, res) {
+  async getProductByCode(req, res , next) {
     const { productCode } = req.params;
 
     if (productCode) {
@@ -42,9 +37,9 @@ export default class ProductController {
             .json({ success: false, message: "Product not found" });
         }
       } catch (err) {
-        console.error("Product fetch error:", err);
-        res.status(500).json({ success: false, message: err.message });
+        next(err);
       }
+      
     } else {
       res
         .status(400)
@@ -54,7 +49,7 @@ export default class ProductController {
 
   //update product by their code
 
-  async updateProduct(req, res) {
+  async updateProduct(req, res, next) {
     const { productCode } = req.params;
 
     if (!productCode) {
@@ -76,13 +71,13 @@ export default class ProductController {
           .json({ success: false, message: "Couldn't update product" });
       }
     } catch (err) {
-      console.error("Product update error:", err);
-      res.status(500).json({ success: false, message: err.message });
+      next(err);
     }
+    
   }
 
   // delete product by their code
-  async deleteProduct(req, res) {
+  async deleteProduct(req, res, next) {
     const { productCode } = req.params;
 
     if (!productCode) {
@@ -107,8 +102,8 @@ export default class ProductController {
           });
       }
     } catch (err) {
-      console.error("Product deletion error:", err);
-      res.status(500).json({ success: false, message: err.message });
+      next(err);
     }
+    
   }
 }

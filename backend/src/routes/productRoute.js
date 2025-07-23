@@ -12,12 +12,12 @@ const router = Router();
 const productController = new ProductController();
 
 // Public: anyone can view products
-router.get("/", (req, res) => {
-  productController.getAllProducts(req, res);
+router.get("/", (req, res,next) => {
+  productController.getAllProducts(req, res,next);
 });
 
-router.get("/:productCode", (req, res) => {
-  productController.getProductByCode(req, res);
+router.get("/:productCode", (req, res,next) => {
+  productController.getProductByCode(req, res,next);
 });
 
 // Protected: only admin can add/update/delete
@@ -27,8 +27,8 @@ router.post(
   authorizeRoles("admin"),
   createProductValidation,
   validateRequest,
-  (req, res) => {
-    productController.addProduct(req, res);
+  (req, res,next) => {
+    productController.addProduct(req, res,next);
   }
 );
 
@@ -38,8 +38,8 @@ router.put(
   authorizeRoles("admin"),
   updateProductValidation,
   validateRequest,
-  (req, res) => {
-    productController.updateProduct(req, res);
+  (req, res,next) => {
+    productController.updateProduct(req,res,next);
   }
 );
 
@@ -47,8 +47,8 @@ router.delete(
   "/delete/:productCode",
   verifyToken,
   authorizeRoles("admin"),
-  (req, res) => {
-    productController.deleteProduct(req, res);
+  (req, res,next) => {
+    productController.deleteProduct(req,res,next);
   }
 );
 

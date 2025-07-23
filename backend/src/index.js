@@ -30,6 +30,16 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.static("public"));
 app.use(cors());
 
+// Global Error Handler Middleware
+app.use((err, req, res, next) => {
+    console.error("Unhandled Error:", err.stack);
+    res.status(err.status || 500).json({
+      success: false,
+      message: err.message || "Internal Server Error",
+    });
+  });
+
+
 
 //routes
 app.use("/api/products", productRoute);
@@ -41,6 +51,8 @@ app.use('/api/countries', countryRoute);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoute)
 app.use("/api/profile", profileRoute);
+
+
 
 
 app.get("/",(req,res)=>{

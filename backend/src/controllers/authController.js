@@ -10,7 +10,7 @@ import UserToken from "../models/userTokenModel.js"; // adjust path if needed
 const JWT_SEC = process.env.JWT_SECRET;
 
 export default class AuthController {
-  async register(req, res) {
+  async register(req, res,next) {
    
     try {
       const { username, email, password, role } = req.body;
@@ -39,12 +39,11 @@ export default class AuthController {
         },
       });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Registration failed" });
+      next(err); 
     }
   }
 
-  async login(req, res) {
+  async login(req, res, next) {
    
     try {
       const { email, password } = req.body;
@@ -81,12 +80,11 @@ export default class AuthController {
       });
       
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Login failed" });
+      next(err); 
     }
   }
 
-  async refreshAccessToken(req,res){
+  async refreshAccessToken(req,res, next){
     const { refreshToken } = req.body;
 
     
@@ -110,13 +108,12 @@ export default class AuthController {
     res.status(200).json({ accessToken: newAccessToken });
     
   } catch (err) {
-    return res.status(403).json({ message: "Refresh token expired or invalid" });
+    next(err); 
   }
- 
 
 }
 
-async logout(req, res) {
+async logout(req, res, next) {
   const { refreshToken } = req.body;
 
   
@@ -131,8 +128,7 @@ async logout(req, res) {
 
     res.status(200).json({ message: "Logged out successfully" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Logout failed" });
+    next(err); 
   }
 }
 

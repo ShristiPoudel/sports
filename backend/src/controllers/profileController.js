@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 export default class ProfileController {
   // GET /api/profile
-  async getProfile(req, res) {
+  async getProfile(req, res,next) {
     try {
       const user = await User.findByPk(req.user.id, {
         attributes: ["userID", "username", "email", "role"]
@@ -15,13 +15,13 @@ export default class ProfileController {
       }
 
       res.json({ success: true, data: user });
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+    } catch (err) {
+      next(err)
     }
   }
 
   // PUT /api/profile
-  async updateProfile(req, res) {
+  async updateProfile(req, res,next) {
     try {
       const { username, email, password } = req.body;
   
@@ -41,8 +41,8 @@ export default class ProfileController {
       } else {
         return res.status(400).json({ success: false, message: "Update failed" });
       }
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+    } catch (err) {
+      next(err)
     }
   }
 }

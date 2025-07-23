@@ -2,7 +2,7 @@ import { Customer, Product, Registration } from '../models/index.js';
 
 export default class RegistrationController {
   // Get all products registered by a customer
-  async getRegistrationsByCustomer(req, res) {
+  async getRegistrationsByCustomer(req, res, next) {
     const { customerId } = req.params;
 
     try {
@@ -19,13 +19,12 @@ export default class RegistrationController {
 
       res.json({ success: true, data: customer.Products });
     } catch (err) {
-      console.error("Get registrations error:", err);
-      res.status(500).json({ success: false, message: err.message });
+      next(err)
     }
   }
 
   // Register a product for a customer
-  async registerProduct(req, res) {
+  async registerProduct(req, res, next) {
     const { customerID, productCode } = req.body;
 
     try {
@@ -50,8 +49,7 @@ export default class RegistrationController {
         res.status(201).json({ success: true, message: "Product registered", data: registration });
 
     } catch (err) {
-        console.error("Register product error:", err);
-        res.status(500).json({ success: false, message: err.message });
+      next(err)
     }
 }
 

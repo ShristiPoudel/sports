@@ -15,15 +15,15 @@ const technicianController = new TechnicianController();
 router.get("/",
   verifyToken,
   authorizeRoles("admin"),
-   (req, res) => {
-  technicianController.getAllTechnicians(req, res);
+   (req, res, next) => {
+  technicianController.getAllTechnicians(req, res, next);
 });
 
 //get technician by id
 router.get("/:techID",
   verifyToken,
-  authorizeRoles("admin", "technician"), (req, res) => {
- technicianController.getTechnicianById(req, res);
+  authorizeRoles("admin", "technician"), (req, res, next) => {
+ technicianController.getTechnicianById(req, res, next);
 });
 
 
@@ -33,8 +33,8 @@ router.post("/add",
   authorizeRoles("admin","technician"),
   createTechnicianValidation,
   validateRequest,
-   (req, res) => {
-  technicianController.addTechnician(req, res);
+   (req, res, next) => {
+  technicianController.addTechnician(req, res, next);
 });
 
 
@@ -44,16 +44,16 @@ router.put("/update/:techID",
   authorizeRoles("admin","technician"),
   updateTechnicianValidation,
   validateRequest,
-   (req,res)=>{
-  technicianController.updateTechnician(req,res);
+   (req,res,next)=>{
+  technicianController.updateTechnician(req,res, next);
 });
 
 //delete technician by id
 router.delete("/delete/:techID",
   verifyToken,
   authorizeRoles("admin","technician"),
-   (req,res)=>{
-  technicianController.deleteTechnician(req,res);
+   (req, res, next)=>{
+  technicianController.deleteTechnician(req,res, next);
 });
 
 

@@ -16,28 +16,28 @@ router.post(
   "/register",
   validateRegister,
   validateRequest,
-  (req, res) => authController.register(req, res)
+  (req, res,next) => authController.register(req, res,next)
 );
 
 router.post(
   "/login",
   validateLogin,
   validateRequest,
-  (req, res) => authController.login(req, res)
+  (req, res,next) => authController.login(req, res, next)
 );
 
 router.post(
   "/refresh",
   validateRefreshOrLogout,
   validateRequest,
-  (req, res) => authController.refreshAccessToken(req, res)
+  (req, res, next) => authController.refreshAccessToken(req, res, next)
 );
 
 router.post(
   "/logout",
   validateRefreshOrLogout,
   validateRequest,
-  (req, res) => authController.logout(req, res)
+  (req, res, next) => authController.logout(req, res, next)
 );
 
 export default router;

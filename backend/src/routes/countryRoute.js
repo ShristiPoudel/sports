@@ -9,7 +9,7 @@ const router = Router();
 const countryController = new CountryController();
 
 // GET /api/countries - fetch all
-router.get('/', (req, res) =>  countryController.getAllCountries(req, res));
+router.get('/', (req, res,next) =>  countryController.getAllCountries(req, res,next));
 
 // POST /api/countries - create new-create new (protected: admin only)
 router.post('/add', 
@@ -17,6 +17,6 @@ router.post('/add',
     authorizeRoles("admin"),
     createCountryValidation,
     validateRequest,
-    (req, res) =>  countryController.createCountry(req, res));
+    (req, res,next) =>  countryController.createCountry(req, res,next));
 
 export default router;

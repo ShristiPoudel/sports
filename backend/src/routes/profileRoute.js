@@ -12,7 +12,7 @@ const profileController = new ProfileController
 router.get(
     "/",
     verifyToken,
-    (req, res) => profileController.getProfile(req, res)
+    (req, res, next) => profileController.getProfile(req, res, next)
   );
   
   //  Update own profile (Any authenticated user)
@@ -21,7 +21,7 @@ router.get(
     verifyToken,
     profileValidation,
     validateRequest,
-    (req, res) => profileController.updateProfile(req, res)
+    (req, res, next) => profileController.updateProfile(req, res, next)
   );
 
 export default router;

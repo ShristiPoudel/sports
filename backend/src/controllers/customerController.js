@@ -3,19 +3,18 @@ import { Op } from "sequelize";
 
 export default class CustomerController {
   //get all customers
-  async getAllCustomers(req, res) {
+  async getAllCustomers(req, res,next) {
     try {
       const customers = await Customer.findAll();
       res.json({ success: true, data: customers }); 
     } catch (err) {
-      console.error("Fetch all customers error:", err);
-      res.status(500).json({ success: false, message: err.message });
+      next(err);
     }
   }
   
 
   // Add a new customer
-  async addCustomer(req, res) {
+  async addCustomer(req, res,next) {
    
   
     // Authorization check
@@ -27,14 +26,13 @@ export default class CustomerController {
       const data = await Customer.create(req.body);
       res.status(201).json({ success: true, customer: data });
     } catch (err) {
-      console.error("Customer creation error:", err);
-      res.status(400).json({ success: false, message: err.message });
+      next(err);
     }
   }
   
 
   //get customer by their id
-  async getCustomerById(req, res) {
+  async getCustomerById(req, res,next) {
     const { customerID } = req.params;
 
     if (!customerID) {
@@ -56,15 +54,14 @@ export default class CustomerController {
 
       return res.json({ success: true, data: customer });
     } catch (err) {
-      console.error("Error fetching customer:", err);
-      return res.status(500).json({ success: false, message: err.message });
+      next(err);
     }
   }
   
 
   //update customer by their id
 
-  async updateCustomer(req, res) {
+  async updateCustomer(req, res,next) {
     const { customerID } = req.params;
 
     if (!customerID) {
@@ -95,13 +92,12 @@ export default class CustomerController {
           .json({ success: false, message: "Couldn't update customer" });
       }
     } catch (err) {
-      console.error("Customer update error:", err);
-      res.status(500).json({ success: false, message: err.message });
+      next(err);
     }
   }
 
   // search customer by last name
-  async searchByLastName(req, res) {
+  async searchByLastName(req, res,next) {
     const { lastName } = req.query;
   
     if (!lastName) {
@@ -129,13 +125,12 @@ export default class CustomerController {
 
       res.json({ success: true, data: customers });
     } catch (err) {
-      console.error("Search by last name error:", err);
-      res.status(500).json({ success: false, message: err.message });
+      next(err);
     }
   }
   
 // delete customer data
-  async deleteCustomer(req, res) {
+  async deleteCustomer(req, res, next) {
     const { customerID } = req.params;
   
     if (!customerID) {
@@ -166,9 +161,8 @@ export default class CustomerController {
       } else {
         res.status(404).json({ success: false, message: "Customer not found" });
       }
-    } catch (err) {
-      console.error("Error deleting customer data:", err);
-      res.status(500).json({ success: false, message: err.message });
+    }catch (err) {
+      next(err);
     }
   }
 

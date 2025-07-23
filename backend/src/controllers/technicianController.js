@@ -2,18 +2,17 @@ import { Technician } from "../models/index.js";
 
 export default class TechnicianController {
   // GET all technicians
-  async getAllTechnicians(req, res) {
+  async getAllTechnicians(req, res,next) {
     try {
       const data = await Technician.findAll();
       res.json({ success: true, data });
     } catch (err) {
-      console.error("Fetch technicians error:", err);
-      res.status(500).json({ success: false, message: err.message });
+      next(err)
     }
   }
 
   // GET technician by ID
-  async getTechnicianById(req, res) {
+  async getTechnicianById(req, res, next) {
     const { techID } = req.params;
 
     if (!techID) {
@@ -33,13 +32,12 @@ export default class TechnicianController {
 
       res.json({ success: true, data });
     } catch (err) {
-      console.error("Fetch technician error:", err);
-      res.status(500).json({ success: false, message: err.message });
+      next(err)
     }
   }
 
   // POST: Add technician
-  async addTechnician(req, res) {
+  async addTechnician(req, res, next) {
     if (req.user.role !== "admin" && req.user.id !== req.body.userID) {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
@@ -48,13 +46,12 @@ export default class TechnicianController {
       const data = await Technician.create(req.body);
       res.status(201).json({ success: true, technician: data });
     } catch (err) {
-      console.error("Technician creation error:", err);
-      res.status(400).json({ success: false, message: err.message });
+      next(err)
     }
   }
 
   // PUT: Update technician
-  async updateTechnician(req, res) {
+  async updateTechnician(req, res, next) {
     const { techID } = req.params;
 
     if (!techID) {
@@ -81,13 +78,12 @@ export default class TechnicianController {
         res.status(400).json({ success: false, message: "Technician update failed" });
       }
     } catch (err) {
-      console.error("Technician update error:", err);
-      res.status(500).json({ success: false, message: err.message });
+      next(err)
     }
   }
 
   // DELETE technician
-  async deleteTechnician(req, res) {
+  async deleteTechnician(req, res, next) {
     const { techID } = req.params;
 
     if (!techID) {
@@ -114,8 +110,7 @@ export default class TechnicianController {
         res.status(400).json({ success: false, message: "Technician deletion failed" });
       }
     } catch (err) {
-      console.error("Technician deletion error:", err);
-      res.status(500).json({ success: false, message: err.message });
+      next(err)
     }
   }
 }
