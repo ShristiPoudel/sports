@@ -1,25 +1,50 @@
 // controllers/profileController.js
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs"; 
+import Customer from "../models/customerModel.js";
+import Technician from "../models/technicianModel.js";
+
 
 export default class ProfileController {
   // GET /api/profile
-  async getProfile(req, res,next) {
+  async getProfile(req, res, next) {
     try {
       const user = await User.findByPk(req.user.id, {
         attributes: ["userID", "username", "email", "role"]
       });
-
+  
       if (!user) {
         return res.status(404).json({ success: false, message: "User not found" });
       }
-
-      res.json({ success: true, data: user });
+  
+      let profileData = user.toJSON(); // convert Sequelize instance to plain object
+  
+      if (user.role === 'customer') {
+        const customer = await Customer.findOne({
+          where: { userID: user.userID },
+          attributes: ["customerID"]
+        });
+  
+        if (customer) {
+          profileData.customerID = customer.customerID;
+        }
+      } else if (user.role === 'technician') {
+        const technician = await Technician.findOne({
+          where: { userID: user.userID },
+          attributes: ["techID"]
+        });
+  
+        if (technician) {
+          profileData.techID = technician.techID;
+        }
+      }
+  
+      res.json({ success: true, data: profileData });
     } catch (err) {
-      next(err)
+      next(err);
     }
   }
-
+  
   // PUT /api/profile
   async updateProfile(req, res,next) {
     try {

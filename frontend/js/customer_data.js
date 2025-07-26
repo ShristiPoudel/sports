@@ -1,81 +1,80 @@
+import { authFetch } from './utils/authFetch.js';
+
 document.addEventListener("DOMContentLoaded", async () => {
   const userID = localStorage.getItem("userID");
   const role = localStorage.getItem("userRole");
-  const token = localStorage.getItem("accessToken");
 
-  // Redirect if not customer or not logged in
-  if (!userID || role !== "customer" || !token) {
-    window.location.href = "login.html";
+  // Redirect if not logged in or not a customer
+  if (!userID || role !== "customer") {
+    window.location.href = "login_users.html";
     return;
   }
 
   try {
     // Check if customer profile already exists
-    const res = await fetch("/api/customers/me", {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
-      }
-    });
+    const res = await authFetch("/api/customers/me");
 
     if (res.ok) {
-      // Customer profile exists, redirect to home
+      // Customer profile exists — redirect to homepage
       window.location.href = "index.html";
       return;
     } else if (res.status !== 404) {
-      // If error is not "Not Found", something went wrong
-      throw new Error(`Unexpected response status: ${res.status}`);
+      // Unexpected error other than "Not Found"
+      throw new Error(`Unexpected status: ${res.status}`);
     }
-    // If 404, continue and allow form to be filled
+    // If 404, allow form to be filled
   } catch (err) {
     console.error("Error checking customer profile:", err);
-    alert("Error verifying customer profile.");
+    alert("Error verifying your profile. Try again later.");
     return;
   }
 
-  // If customer doesn't exist, allow form submission
   const customerForm = document.getElementById("customerForm");
+  if (!customerForm) {
+    console.error("Customer form not found");
+    return;
+  }
 
   customerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const formData = {
       userID: Number(userID),
-      firstName: document.getElementById("firstName").value,
-      lastName: document.getElementById("lastName").value,
-      address: document.getElementById("address").value,
-      city: document.getElementById("city").value,
-      state: document.getElementById("state").value,
-      postalCode: document.getElementById("postalCode").value,
-      phone: document.getElementById("phone").value,
-      countryCode: document.getElementById("countryCode").value,
+      firstName: document.getElementById("firstName").value.trim(),
+      lastName: document.getElementById("lastName").value.trim(),
+      address: document.getElementById("address").value.trim(),
+      city: document.getElementById("city").value.trim(),
+      state: document.getElementById("state").value.trim(),
+      postalCode: document.getElementById("postalCode").value.trim(),
+      phone: document.getElementById("phone").value.trim(),
+      countryCode: document.getElementById("countryCode").value.trim(),
     };
 
     try {
-      const res = await fetch("/api/customers/add", {
+      const res = await authFetch("/api/customers/add", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(formData)
+        headers: { "Content-Type": "application/json" },  // <- add this
+        body: JSON.stringify(formData),
       });
-    
-      const result = await res.json();
-      console.log("response:", result);
-    
+
+      let result;
+      try {
+        result = await res.json();
+      } catch {
+        result = { message: "Invalid server response" };
+      }
+
       if (res.ok) {
         alert("Customer profile created successfully.");
         window.location.href = "index.html";
       } else {
-        console.error("Server returned error:", result);
-        alert(result.message || JSON.stringify(result) || "Failed to create customer profile.");
+        console.error("Profile creation error:", result);
+        alert(result.message || "Failed to create profile.");
       }
+
     } catch (err) {
       console.error("Network or JS error:", err);
-      alert("Network error while submitting form.");
+      alert("Error submitting form. Please try again.");
     }
-    
   });
 });

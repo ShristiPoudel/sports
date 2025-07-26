@@ -1,3 +1,5 @@
+import { authFetch } from './utils/authFetch.js';
+
 const loginBtn = document.getElementById('loginBtn');
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
@@ -12,6 +14,7 @@ loginBtn.addEventListener('click', async () => {
   }
 
   try {
+    // Initial login request (no token required)
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -20,69 +23,50 @@ loginBtn.addEventListener('click', async () => {
 
     const result = await res.json();
 
-    if (res.ok) {
-      const { accessToken, refreshToken, user } = result;
+    if (!res.ok) {
+      alert(result.message || "Invalid credentials.");
+      return;
+    }
 
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('userRole', user.role);
-      localStorage.setItem('userID', user.id);
+    const { accessToken, refreshToken, user } = result;
 
-      if (user.role === 'customer') {
-        try {
-          const profileRes = await fetch('/api/customers/me', {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
+    // Store tokens and user info
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('userRole', user.role);
+    localStorage.setItem('userID', user.id);
 
-          if (profileRes.status === 200) {
-            const profileData = await profileRes.json();
-            if (profileData.exists === true) {
-              window.location.href = "index.html";
-            } else {
-              window.location.href = "customer_data.html";
-            }
-          } else if (profileRes.status === 404) {
-            window.location.href = "customer_data.html";
-          } else {
-            alert("Error checking customer profile.");
-          }
-        } catch (err) {
-          console.error("Error fetching customer profile:", err);
-          alert("Something went wrong checking your profile.");
-        }
+    // Redirect based on role
+    if (user.role === 'customer') {
+      const profileRes = await authFetch('/api/customers/me');
 
-      } else if (user.role === 'technician') {
-        try {
-          const profileRes = await fetch('/api/technicians/me', {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
-
-          if (profileRes.status === 200) {
-            const profileData = await profileRes.json();
-            if (profileData.exists === true) {
-              window.location.href = "index.html";
-            } else {
-              window.location.href = "technician_data.html";
-            }
-          } else if (profileRes.status === 404) {
-            window.location.href = "technician_data.html";
-          } else {
-            alert("Error checking technician profile.");
-          }
-        } catch (err) {
-          console.error("Error fetching technician profile:", err);
-          alert("Something went wrong checking your profile.");
-        }
-
-      } else if (user.role === 'admin') {
-        window.location.href = "index.html";
+      if (profileRes.status === 200) {
+        const profileData = await profileRes.json();
+        window.location.href = profileData.exists ? "index.html" : "customer_data.html";
+      } else if (profileRes.status === 404) {
+        window.location.href = "customer_data.html";
       } else {
-        alert("Unknown user role.");
+        alert("Error checking customer profile.");
       }
 
+    } else if (user.role === 'technician') {
+      const profileRes = await authFetch('/api/technicians/me');
+
+      if (profileRes.status === 200) {
+        const profileData = await profileRes.json();
+        window.location.href = profileData.exists ? "index.html" : "technician_data.html";
+      } else if (profileRes.status === 404) {
+        window.location.href = "technician_data.html";
+      } else {
+        alert("Error checking technician profile.");
+      }
+
+    } else if (user.role === 'admin') {
+      window.location.href = "index.html";
     } else {
-      alert(result.message || "Invalid credentials.");
+      alert("Unknown user role.");
     }
+
   } catch (err) {
     console.error("Login error:", err);
     alert("Server/network error.");

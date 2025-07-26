@@ -1,53 +1,38 @@
-// dashboard_redirect.js
+document.addEventListener("DOMContentLoaded", () => {
+  const role = localStorage.getItem('userRole');
 
-const accessToken = localStorage.getItem('accessToken');
-const refreshToken = localStorage.getItem('refreshToken');
-
-// Helper function to check if JWT is expired
-function isTokenExpired(token) {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.exp * 1000 < Date.now(); // Convert to ms
-  } catch (err) {
-    return true; // Treat as expired if invalid
+  if (!role) {
+    // No role found, redirect to login
+    window.location.href = 'login_users.html';
+    return;
   }
-}
 
-// Function to refresh access token using refresh token
-async function refreshAccessToken() {
-  try {
-    const res = await fetch('/api/auth/refresh', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
-    });
+  // Hide all menu sections initially
+  const sections = document.querySelectorAll('.menu-section');
+  sections.forEach(section => section.style.display = 'none');
 
-    const data = await res.json();
+  // Show the Profile section for all roles
+  document.querySelector('.menu-section:nth-of-type(4)').style.display = 'block';
 
-    if (res.ok) {
-      localStorage.setItem('accessToken', data.accessToken);
-      return data.accessToken;
-    } else {
-      throw new Error(data.message);
-    }
-  } catch (err) {
-    console.error('Token refresh failed:', err);
-    return null;
-  }
-}
+  // Show section based on role
+  switch(role) {
+    case 'admin':
+      document.querySelector('.menu-section:nth-of-type(1)').style.display = 'block';
 
-// Main logic
-(async () => {
-  if (!accessToken || isTokenExpired(accessToken)) {
-    if (refreshToken) {
-      const newToken = await refreshAccessToken();
-      if (!newToken) {
-        // Refresh failed – redirect to login
-        window.location.href = 'login_users.html';
-      }
-    } else {
-      // No tokens at all – redirect to login
+      // ❌ Hide "Update Data" link for admin
+      const updateDataItem = document.querySelector('#update-data-item');
+      if (updateDataItem) updateDataItem.style.display = 'none';
+      break;
+
+    case 'technician':
+      document.querySelector('.menu-section:nth-of-type(2)').style.display = 'block';
+      break;
+
+    case 'customer':
+      document.querySelector('.menu-section:nth-of-type(3)').style.display = 'block';
+      break;
+
+    default:
       window.location.href = 'login_users.html';
-    }
   }
-})();
+});

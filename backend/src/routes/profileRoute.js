@@ -17,7 +17,7 @@ router.get(
   
   //  Update own profile (Any authenticated user)
   router.put(
-    "/update",
+    "/",
     verifyToken,
     profileValidation,
     validateRequest,

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportsPro Technical Support</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+          <h1>SportsPro Technical Support</h1>
+          <p>Sports management software for the sports enthusiast</p>
+      </div>
+  </header>
+
+    <!-- Main Content -->
+    <main class="container">
+  
+  <div class="main-panel">
+
+    <!-- Customer Section -->
+    <div id="customer-section" style="display: none;">
+      <h3>Update Customer Information</h3>
+      <div class="form-panel">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="custFirstName">First Name:</label>
+            <input type="text" id="custFirstName" name="custFirstName" />
+          </div>
+          <div class="form-group">
+            <label for="custLastName">Last Name:</label>
+            <input type="text" id="custLastName" name="custLastName" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="address">Address:</label>
+          <input type="text" id="address" name="address" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="city">City:</label>
+            <input type="text" id="city" name="city" />
+          </div>
+          <div class="form-group">
+            <label for="state">State:</label>
+            <input type="text" id="state" name="state" />
+          </div>
+          <div class="form-group">
+            <label for="postalCode">Postal Code:</label>
+            <input type="text" id="postalCode" name="postalCode" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="country">Country:</label>
+            <select id="country" name="country">
+              <option value="">-- Select a Country --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="custPhone">Phone:</label>
+            <input type="tel" id="custPhone" name="custPhone" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="countryCode">Country Code:</label>
+          <input type="text" id="countryCode" name="countryCode" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Technician Section -->
+    <div id="technician-section" style="display: none;">
+      <h3>Update Technician Information</h3>
+      <div class="form-panel">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="techFirstName">First Name:</label>
+            <input type="text" id="techFirstName" name="techFirstName" />
+          </div>
+          <div class="form-group">
+            <label for="techLastName">Last Name:</label>
+            <input type="text" id="techLastName" name="techLastName" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="techPhone">Phone:</label>
+          <input type="tel" id="techPhone" name="techPhone" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Button Section -->
+    <div class="button-group">
+      <button class="btn btn-primary">Update</button>
+      <button class="btn btn-secondary" type="button">Cancel</button>
+    </div>
+  </div>
+  </main>
+
+   <!-- Footer -->
+   <footer>
+    <div class="container">
+        <p>&copy; 2025 SportsPro, Inc.</p>
+    </div>
+</footer>
+
+
+  <script type="module" src="js/updatedata.js"></script>
+</body>
+</html>
