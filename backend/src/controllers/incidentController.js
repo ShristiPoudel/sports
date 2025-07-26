@@ -90,78 +90,88 @@ export default class IncidentController {
     }
   }
 
-  // Update incident description and optionally close
-  async updateIncident(req, res, next) {
-    const { id } = req.params;
-    const { description, dateClosed } = req.body;
-  
-    if (!description) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Description is required" });
+
+ // Update incident description and optionally close
+async updateIncident(req, res, next) {
+  const { id } = req.params;
+  const { description, dateClosed } = req.body;
+
+  if (!description) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Description is required" });
+  }
+
+  try {
+    const incident = await Incident.findByPk(id);
+
+    if (!incident) {
+      return res.status(404).json({ success: false, message: "Incident not found" });
     }
-  
-    try {
-      const incident = await Incident.findByPk(id);
-  
-      if (!incident) {
-        return res.status(404).json({ success: false, message: "Incident not found" });
-      }
-  
-      // Only admin or the assigned technician can update
-      if (req.user.role !== "admin" && req.user.id !== incident.techID) {
+
+    // Only admin or the assigned technician can update
+    if (req.user.role !== "admin") {
+      const technician = await Technician.findOne({ where: { userID: req.user.id } });
+
+      if (!technician || technician.techID !== incident.techID) {
         return res.status(403).json({ success: false, message: "Access denied" });
       }
-  
-      const [updated] = await Incident.update(
-        {
-          description,
-          dateClosed: dateClosed || null,
-        },
-        {
-          where: { incidentID: id },
-        }
-      );
-  
-      if (updated) {
-        res.json({ success: true, message: "Incident updated successfully" });
-      } else {
-        res.status(500).json({ success: false, message: "Failed to update incident" });
+    }
+
+    const [updated] = await Incident.update(
+      {
+        description,
+        dateClosed: dateClosed || new Date(),
+      },
+      {
+        where: { incidentID: id },
       }
-    } catch (err) {
-      next(err);
+    );
+
+    if (updated) {
+      res.json({ success: true, message: "Incident updated successfully" });
+    } else {
+      res.status(500).json({ success: false, message: "Failed to update incident" });
     }
+  } catch (err) {
+    next(err);
   }
+}
 
-  // Get incidents assigned to the logged-in technician
-  async getAssignedIncidents(req, res, next) {
-    const { userID, role } = req.user;
 
-    if (role !== "technician") {
-      return res.status(403).json({ success: false, message: "Access denied" });
+
+// Get incidents assigned to the logged-in technician
+async getAssignedIncidents(req, res, next) {
+  const { id } = req.user; // userID from JWT
+
+  try {
+    // Get technician using userID (from logged-in user)
+    const technician = await Technician.findOne({ where: { userID: id } });
+
+    if (!technician) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Technician not found" });
     }
 
-    try {
-      const incidents = await Incident.findAll({
-        where: { techID: userID },
-        include: [Customer, Product, Technician],
-      });
+    // Find all incidents assigned to this technician's techID
+    const incidents = await Incident.findAll({
+      where: { techID: technician.techID },
+      include: [Customer, Product, Technician],
+      order: [["dateOpened", "DESC"]],
+    });
 
-      if (!incidents || incidents.length === 0) {
-        return res.status(200).json({
-          success: true,
-          message: "No incidents assigned to you currently",
-          data: [],
-        });
-      }
-
-      res.json({
-        success: true,
-        message: "Assigned incidents retrieved successfully",
-        data: incidents,
-      });
-    } catch (err) {
-      next(err);
-    }
+    res.status(200).json({
+      success: true,
+      message:
+        incidents.length === 0
+          ? "No incidents assigned to you currently"
+          : "Assigned incidents retrieved successfully",
+      data: incidents,
+    });
+  } catch (err) {
+    next(err);
   }
+}
+
 }

@@ -3,53 +3,94 @@ import { Op } from "sequelize";
 
 export default class CustomerController {
   //get all customers
-  async getAllCustomers(req, res,next) {
+  async getAllCustomers(req, res, next) {
     try {
       const customers = await Customer.findAll();
-      res.json({ success: true, data: customers }); 
+      res.json({ success: true, data: customers });
     } catch (err) {
       next(err);
     }
   }
-  
+
+  // get the logged in customer data
+  async getMyCustomerData(req, res, next) {
+    try {
+      const customer = await Customer.findOne({
+        where: { userID: req.user.id },
+      });
+
+      if (!customer) {
+        return res
+          .status(404)
+          .json({ exists: false, message: "Customer profile not found." });
+      }
+
+      res.status(200).json({ exists: true, data: customer });
+    } catch (err) {
+      next(err);
+    }
+  }
 
   // Add a new customer
-  async addCustomer(req, res,next) {
-   
-  
+  async addCustomer(req, res, next) {
     // Authorization check
     if (req.user.role !== "admin" && req.user.id !== req.body.userID) {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
-  
+
     try {
+      // Check if a customer already exists for the given userID
+      const existingCustomer = await Customer.findOne({
+        where: { userID: req.body.userID },
+      });
+
+      if (existingCustomer) {
+        return res.status(400).json({
+          success: false,
+          message: "Customer already exists for this userID",
+        });
+      }
+      //  Check if provided countryCode exists
+      const country = await Country.findByPk(req.body.countryCode);
+      if (!country) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid countryCode: not found in supported countries",
+        });
+      }
+
+      // Create new customer if not exists
       const data = await Customer.create(req.body);
       res.status(201).json({ success: true, customer: data });
     } catch (err) {
       next(err);
     }
   }
-  
 
   //get customer by their id
-  async getCustomerById(req, res,next) {
+  async getCustomerById(req, res, next) {
     const { customerID } = req.params;
 
     if (!customerID) {
-      return res.status(400).json({ success: false, message: "Customer ID is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Customer ID is required" });
     }
 
     try {
       const customer = await Customer.findByPk(customerID);
 
       if (!customer) {
-        return res.status(404).json({ success: false, message: "Customer not found" });
+        return res
+          .status(404)
+          .json({ success: false, message: "Customer not found" });
       }
 
       // Access check: Only admin or the customer who owns the data
-      if (req.user.role !== "admin" && req.user.id !== customer.userID)
-       {
-        return res.status(403).json({ success: false, message: "Access denied" });
+      if (req.user.role !== "admin" && req.user.id !== customer.userID) {
+        return res
+          .status(403)
+          .json({ success: false, message: "Access denied" });
       }
 
       return res.json({ success: true, data: customer });
@@ -57,11 +98,10 @@ export default class CustomerController {
       next(err);
     }
   }
-  
 
   //update customer by their id
 
-  async updateCustomer(req, res,next) {
+  async updateCustomer(req, res, next) {
     const { customerID } = req.params;
 
     if (!customerID) {
@@ -71,14 +111,20 @@ export default class CustomerController {
     }
 
     try {
-
       const existingCustomer = await Customer.findByPk(customerID);
       if (!existingCustomer) {
-        return res.status(404).json({ success: false, message: "Customer not found" });
+        return res
+          .status(404)
+          .json({ success: false, message: "Customer not found" });
       }
 
-      if (req.user.role !== "admin" && req.user.id !== existingCustomer.userID) {
-        return res.status(403).json({ success: false, message: "Access denied" });
+      if (
+        req.user.role !== "admin" &&
+        req.user.id !== existingCustomer.userID
+      ) {
+        return res
+          .status(403)
+          .json({ success: false, message: "Access denied" });
       }
       const data = await Customer.update(req.body, {
         where: { customerID },
@@ -97,25 +143,25 @@ export default class CustomerController {
   }
 
   // search customer by last name
-  async searchByLastName(req, res,next) {
+  async searchByLastName(req, res, next) {
     const { lastName } = req.query;
-  
+
     if (!lastName) {
       return res
         .status(400)
         .json({ success: false, message: "Last name is required" });
     }
-  
+
     try {
       const customers = await Customer.findAll({
         where: {
           lastName: {
-            [Op.iLike]: `%${lastName}%`, 
+            [Op.iLike]: `%${lastName}%`,
           },
         },
         include: [Country],
       });
-  
+
       if (customers.length === 0) {
         return res.status(404).json({
           success: false,
@@ -128,45 +174,47 @@ export default class CustomerController {
       next(err);
     }
   }
-  
-// delete customer data
+
+  // delete customer data
   async deleteCustomer(req, res, next) {
     const { customerID } = req.params;
-  
+
     if (!customerID) {
       return res.status(400).json({
         success: false,
         message: "Customer ID is required",
       });
     }
-  
-    try {
 
+    try {
       const customer = await Customer.findByPk(customerID);
       if (!customer) {
-        return res.status(404).json({ success: false, message: "Customer not found" });
+        return res
+          .status(404)
+          .json({ success: false, message: "Customer not found" });
       }
-  
+
       //  Allow only admin or self
       if (req.user.role !== "admin" && req.user.id !== customer.userID) {
-        return res.status(403).json({ success: false, message: "Access denied" });
+        return res
+          .status(403)
+          .json({ success: false, message: "Access denied" });
       }
-  
+
       const deleted = await Customer.destroy({
         where: { customerID },
       });
-  
+
       if (deleted) {
-        res.json({ success: true, message: "Customer data deleted successfully" });
+        res.json({
+          success: true,
+          message: "Customer data deleted successfully",
+        });
       } else {
         res.status(404).json({ success: false, message: "Customer not found" });
       }
-    }catch (err) {
+    } catch (err) {
       next(err);
     }
   }
-
-  
-  
-  
 }

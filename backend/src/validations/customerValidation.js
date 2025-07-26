@@ -43,6 +43,15 @@ export const createCustomerValidation = [
     .optional()
     .isLength({ max: 20 })
     .withMessage("phone must be at most 20 characters"),
+
+  body("countryCode")
+    .notEmpty()
+    .withMessage("countryCode is required")
+    .isLength({ min: 2, max: 2 })
+    .withMessage("countryCode must be exactly 2 characters")
+    .isAlpha()
+    .withMessage("countryCode must contain only letters")
+    .toUpperCase(),
 ];
 
 export const updateCustomerValidation = [
@@ -80,4 +89,13 @@ export const updateCustomerValidation = [
     .optional()
     .isLength({ max: 20 })
     .withMessage("phone must be at most 20 characters"),
+  
+   body("countryCode")
+    .notEmpty()
+    .withMessage("countryCode is required")
+    .isLength({ min: 2, max: 2 })
+    .withMessage("countryCode must be exactly 2 characters")
+    .isAlpha()
+    .withMessage("countryCode must contain only letters")
+    .toUpperCase(),
 ];

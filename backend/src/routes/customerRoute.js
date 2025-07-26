@@ -17,6 +17,13 @@ router.get("/",
   customerController.getAllCustomers(req, res, next);
 });
 
+//  Get own customer data
+router.get("/me",
+  verifyToken,
+  authorizeRoles("customer", "admin"), // allow both
+  (req, res, next) => customerController.getMyCustomerData(req, res, next)
+);
+
 //get a specific customer
 router.get("/:customerID",
   verifyToken,
@@ -26,7 +33,8 @@ router.get("/:customerID",
 });
 
 
-//add customerdata
+
+//add customer data
 router.post("/add",
   verifyToken,
   authorizeRoles("admin", "customer"),
@@ -54,7 +62,7 @@ router.delete("/delete/:customerID",
   customerController.deleteCustomer(req, res, next);
 });
 
-//  allow searching by lastName for admin and customer
+//  allow searching by lastName for admin 
 router.get(
   "/search/lastName",
   verifyToken,

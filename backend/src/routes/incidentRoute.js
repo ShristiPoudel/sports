@@ -20,6 +20,11 @@ router.get(
   (req, res,next ) => controller.getAllIncidents(req, res,next)
 );
 
+// GET /api/incidents/assigned - Technician's assigned incidents
+router.get("/assigned", verifyToken, authorizeRoles("technician"), (req, res,next) =>
+  controller.getAssignedIncidents(req, res,next)
+);
+
 //get incident by id
 router.get(
   "/:id",
@@ -30,7 +35,7 @@ router.get(
 
 //post incident
 router.post(
-  "/",
+  "/add",
   verifyToken,
   authorizeRoles("admin", "customer"),
   createIncidentValidation,
@@ -58,9 +63,6 @@ router.put(
   (req, res,next) => controller.updateIncident(req, res,next)
 );
 
-// GET /api/incidents/assigned - Technician's assigned incidents
-router.get("/assigned", verifyToken, authorizeRoles("technician"), (req, res,next) =>
-  controller.getAssignedIncidents(req, res,next)
-);
+
 
 export default router;

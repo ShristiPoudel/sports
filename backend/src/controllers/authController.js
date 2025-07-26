@@ -15,10 +15,17 @@ export default class AuthController {
     try {
       const { username, email, password, role } = req.body;
 
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
-        return res.status(409).json({ message: "User already exists" });
-      }
+    // Check if email already exists
+    const existingEmail = await User.findOne({ where: { email } });
+    if (existingEmail) {
+      return res.status(409).json({ message: "Email already exists" });
+    }
+
+    // Check if username already exists
+    const existingUsername = await User.findOne({ where: { username } });
+    if (existingUsername) {
+      return res.status(409).json({ message: "Username already exists" });
+    }
 
       const hashedPassword = await bcrypt.hash(password, 10);
 

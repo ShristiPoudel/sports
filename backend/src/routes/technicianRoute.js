@@ -19,6 +19,17 @@ router.get("/",
   technicianController.getAllTechnicians(req, res, next);
 });
 
+// GET /api/technicians/me - Get logged-in technician's profile
+router.get(
+  "/me",
+  verifyToken,
+  authorizeRoles("technician", "admin"), // admin can also check their own technician profile if needed
+  (req, res, next) => {
+    technicianController.getMyTechnicianData(req, res, next);
+  }
+);
+
+
 //get technician by id
 router.get("/:techID",
   verifyToken,
