@@ -22,38 +22,41 @@
         <h2>Create Incident</h2>
         <a href="index.html">Home</a>
       </div>
-
+  
+      <!-- Loading Indicator for Product Dropdown -->
+      <div id="loadingIndicator" class="hidden">
+        <p><em>Loading products...</em></p>
+      </div>
+  
       <!-- Create Incident Form -->
       <div class="form-panel">
         <div class="form-row">
           <div class="form-group">
-            <label for="customer">Customer:</label>
-            <select id="customer" name="customer">
-              <option value="">-- Loading customers... --</option>
-            </select>
-          </div>
-
-          <div class="form-group">
             <label for="product">Product:</label>
             <select id="product" name="product">
-              <option value="">-- Loading products... --</option>
+              <option value="">-- Select a Product --</option>
             </select>
           </div>
         </div>
-
+  
         <div class="form-group">
           <label for="title">Title:</label>
           <input type="text" id="title" name="title" placeholder="Brief description of the issue" />
         </div>
-
+  
         <div class="form-group">
           <label for="description">Description:</label>
           <textarea id="description" name="description" rows="4" placeholder="Detailed description of the incident"></textarea>
         </div>
-
+  
         <button id="createBtn" class="btn btn-primary">Create Incident</button>
+  
+        <!-- Loading Indicator for Create Submission -->
+        <div id="createLoading" class="hidden">
+          <p><em>Submitting incident...</em></p>
+        </div>
       </div>
-
+  
       <!-- Confirmation Message -->
       <div class="success-panel hidden" id="successPanel">
         <div class="alert alert-success">
@@ -62,6 +65,7 @@
       </div>
     </div>
   </main>
+  
 
   <!-- Footer -->
   <footer>
@@ -71,6 +75,6 @@
   </footer>
 
   <!-- JS -->
-  <script src="js/create_incidents.js"></script>
+  <script type="module" src="js/create_incidents.js"></script>
 </body>
 </html>

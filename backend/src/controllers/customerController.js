@@ -1,12 +1,19 @@
-import { Customer, Country } from "../models/index.js";
+import { Customer, Country, User } from "../models/index.js";
+import bcrypt from "bcryptjs";
 import { Op } from "sequelize";
 
 export default class CustomerController {
   //get all customers
   async getAllCustomers(req, res, next) {
     try {
-      const customers = await Customer.findAll();
-      res.json({ success: true, data: customers });
+      const data = await Customer.findAll({
+        include: {
+          model: User,
+          attributes: ["email"],
+        },
+      });
+  
+      res.json({ success: true, data });
     } catch (err) {
       next(err);
     }
@@ -178,41 +185,106 @@ export default class CustomerController {
   // delete customer data
   async deleteCustomer(req, res, next) {
     const { customerID } = req.params;
-
+  
     if (!customerID) {
       return res.status(400).json({
         success: false,
         message: "Customer ID is required",
       });
     }
-
+  
     try {
+      // Fetch the customer
       const customer = await Customer.findByPk(customerID);
+  
       if (!customer) {
+        return res.status(404).json({
+          success: false,
+          message: "Customer not found",
+        });
+      }
+  
+      const userID = customer.userID;
+  
+      // Delete customer
+      await Customer.destroy({ where: { customerID } });
+  
+      // Delete associated user
+      await User.destroy({ where: { userID } });
+  
+      return res.json({
+        success: true,
+        message: "Customer and user account deleted successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  
+  async addCustomerByAdmin(req, res, next) {
+    try {
+      const {
+        email,
+        password,
+        firstName,
+        lastName,
+        address,
+        city,
+        state,
+        postalCode,
+        phone,
+        countryCode,
+      } = req.body;
+
+      const username = email.split("@")[0];
+
+      const existingEmail = await User.findOne({ where: { email } });
+      if (existingEmail) {
         return res
-          .status(404)
-          .json({ success: false, message: "Customer not found" });
+          .status(400)
+          .json({ success: false, message: "Email is already taken." });
       }
 
-      //  Allow only admin or self
-      if (req.user.role !== "admin" && req.user.id !== customer.userID) {
+      const existingUsername = await User.findOne({ where: { username } });
+      if (existingUsername) {
         return res
-          .status(403)
-          .json({ success: false, message: "Access denied" });
+          .status(400)
+          .json({ success: false, message: "Username is already taken." });
       }
 
-      const deleted = await Customer.destroy({
-        where: { customerID },
+      const country = await Country.findByPk(countryCode);
+      if (!country) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid country." });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newUser = await User.create({
+        username,
+        email,
+        password: hashedPassword,
+        role: "customer",
       });
 
-      if (deleted) {
-        res.json({
-          success: true,
-          message: "Customer data deleted successfully",
-        });
-      } else {
-        res.status(404).json({ success: false, message: "Customer not found" });
-      }
+      const newCustomer = await Customer.create({
+        userID: newUser.userID,
+        firstName,
+        lastName,
+        address,
+        city,
+        state,
+        postalCode,
+        phone,
+        countryCode,
+      });
+
+      res.status(201).json({
+        success: true,
+        message: "Customer created successfully.",
+        data: newCustomer,
+      });
     } catch (err) {
       next(err);
     }

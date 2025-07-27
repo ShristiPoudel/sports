@@ -1,134 +1,165 @@
+import { authFetch } from "./utils/authFetch.js";
+
 const API_URL = "/api/customers";
 
-// DOM Elements
-const searchBtn = document.querySelector(".search-row .btn");
-const lastNameInput = document.getElementById("lastName");
+// DOM elements
+const form = document.getElementById("customerForm");
 const tbody = document.querySelector("tbody");
-const editForm = document.querySelector(".form-panel");
 
-// Form fields
-const firstNameInput = document.getElementById("firstName");
-const editLastNameInput = document.getElementById("editLastName");
-const addressInput = document.getElementById("address");
-const cityInput = document.getElementById("city");
-const stateInput = document.getElementById("state");
-const postalCodeInput = document.getElementById("postalCode");
-const countrySelect = document.getElementById("country");
-const phoneInput = document.getElementById("phone");
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const updateBtn = document.querySelector(".button-group .btn-primary");
-const cancelBtn = document.querySelector(".button-group .btn-secondary");
+// Form inputs
+const firstNameInput = document.getElementById("addFirstName");
+const lastNameInput = document.getElementById("addLastName");
+const emailInput = document.getElementById("addEmail");
+const phoneInput = document.getElementById("addPhone");
+const passwordInput = document.getElementById("addPassword");
+const addressInput = document.getElementById("addAddress");
+const cityInput = document.getElementById("addCity");
+const stateInput = document.getElementById("addState");
+const postalCodeInput = document.getElementById("addPostalCode");
+const countryInput = document.getElementById("addCountry");
 
-let selectedCustomerId = null;
-
-// Search customer by last name
-searchBtn.addEventListener("click", async () => {
-  const lastName = lastNameInput.value.trim();
-  if (!lastName) return alert("Enter last name");
-
+// Fetch and display all customers
+async function fetchCustomers() {
   try {
-    const res = await fetch(`${API_URL}/search/lastName?lastName=${encodeURIComponent(lastName)}`);
+    const res = await authFetch(API_URL); // uses GET by default
     const result = await res.json();
 
-    if (!res.ok || !Array.isArray(result.data)) {
-      alert(result.message || "No customer found");
-      tbody.innerHTML = "";
-      return;
+    if (result.success && Array.isArray(result.data)) {
+      renderTable(result.data);
+    } else {
+      alert("Failed to load customers: " + (result.message || "Invalid response"));
+      tbody.innerHTML = "<tr><td colspan='5'>No customers found.</td></tr>";
     }
-
-    renderCustomerTable(result.data);
   } catch (err) {
-    console.error("Search error:", err);
-    alert("Search failed. See console.");
+    console.error("Error fetching customers:", err);
+    alert("Error fetching customers: " + err.message);
+    tbody.innerHTML = "<tr><td colspan='5'>Error loading data.</td></tr>";
   }
-});
+}
 
-function renderCustomerTable(customers) {
+// Render customer table
+function renderTable(customers) {
   tbody.innerHTML = "";
-  customers.forEach((c) => {
+  customers.forEach((cust) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${c.firstName} ${c.lastName}</td>
-      <td>${c.email}</td>
-      <td>${c.phone}</td>
-      <td><button class="btn btn-primary" data-id="${c.customerID}">View/Edit</button></td>
+      <td>${cust.firstName}</td>
+      <td>${cust.lastName}</td>
+      <td>${cust?.User?.email ?? "-"}</td>
+      <td>${cust.phone || "-"}</td>
+      <td><button class="btn btn-danger" data-id="${cust.customerID}">Delete</button></td>
     `;
     tbody.appendChild(row);
   });
 
-  document.querySelectorAll("button[data-id]").forEach((btn) =>
-    btn.addEventListener("click", () => loadCustomerForEdit(btn.dataset.id))
-  );
+  // Attach delete button events
+  document.querySelectorAll(".btn-danger").forEach((btn) => {
+    btn.addEventListener("click", handleDelete);
+  });
 }
 
-async function loadCustomerForEdit(id) {
-  try {
-    const res = await fetch(`${API_URL}/${id}`);
-    const customer = await res.json();
+// Handle form submission to add customer
+if (form) {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    if (!res.ok || !customer.customerID) {
-      alert(customer.message || "Customer not found");
+    const customer = {
+      firstName: firstNameInput.value.trim(),
+      lastName: lastNameInput.value.trim(),
+      email: emailInput.value.trim(),
+      phone: phoneInput.value.trim(),
+      password: passwordInput.value.trim(),
+      address: addressInput.value.trim(),
+      city: cityInput.value.trim(),
+      state: stateInput.value.trim(),
+      postalCode: postalCodeInput.value.trim(),
+      countryCode: countryInput.value,
+    };
+
+    const isEmpty = Object.values(customer).some((val) => !val);
+    if (isEmpty) {
+      alert("Please fill in all fields.");
       return;
     }
 
-    selectedCustomerId = id;
-    firstNameInput.value = customer.firstName || "";
-    editLastNameInput.value = customer.lastName || "";
-    addressInput.value = customer.address || "";
-    cityInput.value = customer.city || "";
-    stateInput.value = customer.state || "";
-    postalCodeInput.value = customer.postalCode || "";
-    phoneInput.value = customer.phone || "";
-    emailInput.value = customer.email || "";
-    passwordInput.value = customer.password || "";
-    countrySelect.value = customer.countryCode || "US";
+    try {
+      const res = await authFetch(`${API_URL}/addbyadmin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(customer),
+      });
 
-    editForm.scrollIntoView({ behavior: "smooth" });
-  } catch (err) {
-    console.error("Error loading customer:", err);
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        alert("Customer added!");
+        form.reset();
+        fetchCustomers();
+      } else {
+        alert("Add failed: " + (result.message || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("Add error:", err);
+      alert("Add error: " + err.message);
+    }
+  });
+}
+
+// Handle delete customer
+async function handleDelete(e) {
+  const id = e.target.dataset.id;
+  if (!id) return;
+
+  if (confirm(`Delete customer ID ${id}?`)) {
+    try {
+      const res = await authFetch(`${API_URL}/delete/${id}`, {
+        method: "DELETE",
+      });
+
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        fetchCustomers();
+      } else {
+        alert("Delete failed: " + (result.message || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Delete error: " + err.message);
+    }
   }
 }
 
-updateBtn.addEventListener("click", async () => {
-  if (!selectedCustomerId) return alert("No customer selected");
 
-  const updatedCustomer = {
-    firstName: firstNameInput.value,
-    lastName: editLastNameInput.value,
-    address: addressInput.value,
-    city: cityInput.value,
-    state: stateInput.value,
-    postalCode: postalCodeInput.value,
-    phone: phoneInput.value,
-    email: emailInput.value,
-    password: passwordInput.value,
-    countryCode: countrySelect.value,
-  };
-
+// Load country list dynamically
+async function loadCountries() {
   try {
-    const res = await fetch(`${API_URL}/update/${selectedCustomerId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedCustomer),
-    });
-
+    const res = await authFetch("/api/countries");
     const result = await res.json();
 
-    if (res.ok) {
-      alert("Customer updated successfully");
-      lastNameInput.value = "";
-      tbody.innerHTML = "";
-      selectedCustomerId = null;
+    const select = document.getElementById("addCountry");
+    select.innerHTML = "";
+
+    if (res.ok && result.success && Array.isArray(result.data)) {
+      result.data.forEach((country) => {
+        const option = document.createElement("option");
+        option.value = country.countryCode;
+        option.textContent = country.countryName;
+        select.appendChild(option);
+      });
     } else {
-      alert(result.message || "Update failed");
+      select.innerHTML = `<option value="">Failed to load countries</option>`;
     }
   } catch (err) {
-    console.error("Update error:", err);
+    console.error("Error loading countries:", err);
+    const select = document.getElementById("addCountry");
+    select.innerHTML = `<option value="">Error loading countries</option>`;
   }
-});
+}
 
-cancelBtn.addEventListener("click", () => {
-  selectedCustomerId = null;
-  editForm.reset();
-});
+
+// Initial load
+loadCountries();
+fetchCustomers();

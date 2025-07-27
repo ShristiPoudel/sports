@@ -36,25 +36,34 @@ export default class IncidentController {
 
   // Create new incident (reporting)
   async createIncident(req, res, next) {
-    const { customerID, productCode, dateOpened, title, description } =
-      req.body;
-
-    if (!customerID || !productCode || !title || !description) {
+    const { productCode, dateOpened, title, description } = req.body;
+    const userID = req.user.id; // from JWT / auth middleware
+  
+    if (!productCode || !title || !description) {
       return res
         .status(400)
         .json({ success: false, message: "Missing required fields" });
     }
-
+  
     try {
+      // Find customer by logged-in userID
+      const customer = await Customer.findOne({ where: { userID } });
+  
+      if (!customer) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Customer not found" });
+      }
+  
       const incident = await Incident.create({
-        customerID,
+        customerID: customer.customerID,
         productCode,
         dateOpened: dateOpened || new Date(),
         title,
         description,
         techID: null,
       });
-
+  
       res
         .status(201)
         .json({ success: true, message: "Incident created", data: incident });
@@ -62,6 +71,7 @@ export default class IncidentController {
       next(err);
     }
   }
+  
 
   // Assign incident to technician
   async assignTechnician(req, res, next) {
@@ -118,15 +128,15 @@ async updateIncident(req, res, next) {
       }
     }
 
-    const [updated] = await Incident.update(
-      {
-        description,
-        dateClosed: dateClosed || new Date(),
-      },
-      {
-        where: { incidentID: id },
-      }
-    );
+    const updateData = { description };
+    if (dateClosed) {
+      updateData.dateClosed = dateClosed;
+    }
+    
+    const [updated] = await Incident.update(updateData, {
+      where: { incidentID: id },
+    });
+    
 
     if (updated) {
       res.json({ success: true, message: "Incident updated successfully" });

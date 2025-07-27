@@ -46,3 +46,12 @@ export const updateTechnicianValidation = [
     .isLength({ max: 20 })
     .withMessage("Phone must not exceed 20 characters")
 ];
+
+export const createTechnicianByAdminValidation = [
+  body("firstName").notEmpty().isLength({ min: 2, max: 50 }),
+  body("lastName").notEmpty().isLength({ min: 2, max: 50 }),
+  body("email").notEmpty().isEmail(),
+  body("phone").optional().isLength({ max: 20 }),
+  body("password").notEmpty().isLength({ min: 6 }),
+];
+

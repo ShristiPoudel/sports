@@ -4,6 +4,7 @@ import verifyToken from "../middlewares/authMiddleware.js"
 import authorizeRoles from "../middlewares/roleMiddleware.js"
 import { createTechnicianValidation, updateTechnicianValidation } from "../validations/technicianValidation.js";
 import validateRequest from "../middlewares/validateRequest.js"
+import { createTechnicianByAdminValidation } from "../validations/technicianValidation.js";
 
 const router = Router();
 
@@ -62,10 +63,20 @@ router.put("/update/:techID",
 //delete technician by id
 router.delete("/delete/:techID",
   verifyToken,
-  authorizeRoles("admin","technician"),
+  authorizeRoles("admin"),
    (req, res, next)=>{
   technicianController.deleteTechnician(req,res, next);
 });
+
+// Add technician by admin
+router.post(
+  "/addbyadmin",
+  verifyToken,
+  authorizeRoles("admin"),
+  createTechnicianByAdminValidation,
+  validateRequest,
+  (req, res, next) => technicianController.addTechnicianByAdmin(req, res, next)
+);
 
 
 

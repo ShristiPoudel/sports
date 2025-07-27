@@ -1,7 +1,10 @@
+import { authFetch } from './utils/authFetch.js';
+
+//API end points
 const INCIDENTS_API = "/api/incidents";
 const TECHNICIANS_API = "/api/technicians";
 
-// Elements
+// DOM Elements
 const tbody = document.querySelector("tbody");
 const assignmentPanel = document.querySelector(".assignment-panel");
 const technicianSelect = document.getElementById("technician");
@@ -16,15 +19,31 @@ const incDate = document.getElementById("incDate");
 const incTitle = document.getElementById("incTitle");
 const incDescription = document.getElementById("incDescription");
 
+// loading states
+const loadingIndicator = document.getElementById("loadingIndicator");
+
 let currentIncidentID = null;
 
-// Load unassigned incidents
+function showLoading() {
+    if (loadingIndicator) loadingIndicator.classList.remove("hidden");
+}
+
+function hideLoading() {
+    if (loadingIndicator) loadingIndicator.classList.add("hidden");
+}
+
+//loading unsigned incidents
 async function loadIncidents() {
+    showLoading();
     try {
-        const res = await fetch(INCIDENTS_API);
+        // Simulate 5-second loading delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const res = await authFetch(INCIDENTS_API);
+        if (!res) return;
         const data = await res.json();
 
-        console.log("Fetched incidents data:", data); 
+        console.log("Fetched incidents data:", data);
 
         if (!data.success) throw new Error(data.message);
 
@@ -34,10 +53,12 @@ async function loadIncidents() {
     } catch (err) {
         console.error("Error loading incidents:", err);
         alert("Failed to load incidents: " + err.message);
+    } finally {
+        hideLoading();
     }
 }
 
-// Render incidents table
+
 function renderIncidents(incidents) {
     tbody.innerHTML = "";
 
@@ -64,10 +85,14 @@ function renderIncidents(incidents) {
     });
 }
 
-// Load technicians into select dropdown
+//loading all technicians to assign incident to any of them
 async function loadTechnicians() {
+    showLoading();
     try {
-        const res = await fetch(TECHNICIANS_API);
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const res = await authFetch(TECHNICIANS_API);
+        if (!res) return;
         const data = await res.json();
 
         console.log("Fetched technicians data:", data);
@@ -79,24 +104,26 @@ async function loadTechnicians() {
         data.data.forEach(tech => {
             const opt = document.createElement("option");
             opt.value = tech.techID;
-            opt.textContent = `${tech.firstName} ${tech.lastName} (${tech.email})`;
+            opt.textContent = `${tech.firstName} ${tech.lastName}${tech.User?.email ? ` (${tech.User.email})` : ''}`;
             technicianSelect.appendChild(opt);
         });
     } catch (err) {
         console.error("Error loading technicians:", err);
         alert("Failed to load technicians: " + err.message);
+    } finally {
+        hideLoading();
     }
 }
 
-// Handle incident selection
 async function handleSelect(e) {
     const id = e.target.dataset.id;
-
+    showLoading();
     try {
-        const res = await fetch(`${INCIDENTS_API}/${id}`);
+        const res = await authFetch(`${INCIDENTS_API}/${id}`);
+        if (!res) return;
         const data = await res.json();
 
-        console.log("Fetched single incident:", data); 
+        console.log("Fetched single incident:", data);
 
         if (!data.success) throw new Error(data.message);
 
@@ -114,10 +141,12 @@ async function handleSelect(e) {
     } catch (err) {
         console.error("Error loading incident:", err);
         alert("Failed to load incident details: " + err.message);
+    } finally {
+        hideLoading();
     }
 }
 
-// Handle assigning the incident
+//handling assign incident
 assignBtn.addEventListener("click", async () => {
     const techID = technicianSelect.value;
     if (!techID) {
@@ -125,15 +154,16 @@ assignBtn.addEventListener("click", async () => {
         return;
     }
 
+    showLoading();
     try {
-        const res = await fetch(`${INCIDENTS_API}/${currentIncidentID}/assign`, {
+        const res = await authFetch(`${INCIDENTS_API}/${currentIncidentID}/assign`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ techID: parseInt(techID) }),
         });
+        if (!res) return;
         const data = await res.json();
 
-        console.log("Assign incident response:", data); 
+        console.log("Assign incident response:", data);
 
         if (!data.success) throw new Error(data.message);
 
@@ -141,20 +171,35 @@ assignBtn.addEventListener("click", async () => {
         assignmentPanel.classList.add("hidden");
         technicianSelect.value = "";
         currentIncidentID = null;
+
+        // Refresh incident list after assigned
         await loadIncidents();
     } catch (err) {
         console.error("Error assigning incident:", err);
         alert("Failed to assign incident: " + err.message);
+    } finally {
+        hideLoading();
     }
 });
 
-// Handle cancel assignment
+ // Handle canceling assignment
 cancelBtn.addEventListener("click", () => {
     assignmentPanel.classList.add("hidden");
     technicianSelect.value = "";
     currentIncidentID = null;
 });
 
-// Initial load
-loadIncidents();
-loadTechnicians();
+ // On page load, verify admin and initialize data
+document.addEventListener("DOMContentLoaded", () => {
+    const userID = localStorage.getItem("userID");
+    const role = localStorage.getItem("userRole");
+
+    if (!userID || role !== "admin") {
+        window.location.href = "login_users.html";
+        return;
+    }
+
+    // Load initial data
+    loadIncidents();
+    loadTechnicians();
+});

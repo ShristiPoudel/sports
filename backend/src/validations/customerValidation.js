@@ -99,3 +99,55 @@ export const updateCustomerValidation = [
     .withMessage("countryCode must contain only letters")
     .toUpperCase(),
 ];
+
+
+export const createCustomerByAdminValidation = [
+  body("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email address"),
+
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters long"),
+
+  body("firstName")
+    .notEmpty()
+    .withMessage("firstName is required")
+    .isLength({ min: 2, max: 50 }),
+
+  body("lastName")
+    .notEmpty()
+    .withMessage("lastName is required")
+    .isLength({ min: 2, max: 50 }),
+
+  body("address")
+    .optional()
+    .isLength({ max: 50 }),
+
+  body("city")
+    .optional()
+    .isLength({ max: 50 }),
+
+  body("state")
+    .optional()
+    .isLength({ max: 50 }),
+
+  body("postalCode")
+    .optional()
+    .isLength({ max: 20 }),
+
+  body("phone")
+    .optional()
+    .isLength({ max: 20 }),
+
+  body("countryCode")
+    .notEmpty()
+    .withMessage("countryCode is required")
+    .isLength({ min: 2, max: 2 })
+    .isAlpha()
+    .toUpperCase()
+];

@@ -18,27 +18,19 @@
     <!-- Main Content -->
     <main class="container">
         <div class="main-panel small-panel">
-            <div class="header-section">
-                <h2>Customer Login</h2>
-                <a href="index.html">Home</a>
-            </div>
-            
-            <!-- Login Form -->
-            <div class="login-panel mb-4">
-                <p>You must login before you can register a product.</p>
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email">
-                </div>
-                <button id="loginBtn" class="btn btn-primary full-width">Login</button>
-            </div>
-            
-            <!-- Registration Form (Initially hidden - shown after login) -->
-            <div class="registration-panel mb-4 hidden">
+            <!-- Registration Form -->
+            <div class="registration-panel mb-4 ">
                 <h3>Register Product</h3>
                 <div class="customer-info mb-2">
                     <p>Customer: <span class="customer-name"></span></p>
                 </div>
+
+                <!-- Registered Products -->
+                <h3>Your Registered Products</h3>
+                <div class="registered-products-container mb-4">
+                    <!-- Registered products will be dynamically added here -->
+                </div>
+
                 <div class="form-group">
                     <label for="product">Product:</label>
                     <select id="product" name="product">
@@ -48,6 +40,7 @@
                 </div>
                 <button id="registerBtn" class="btn btn-primary full-width">Register Product</button>
             </div>
+
             
             <!-- Confirmation Message (Initially hidden - shown after registration) -->
             <div class="success-panel hidden">
@@ -67,7 +60,7 @@
     </footer>
 
     <!-- js file -->
-    <script  src="js/register_product.js"></script>
+    <script type="module" src="js/register_product.js"></script>
 
 </body>
 </html>

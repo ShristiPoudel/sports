@@ -1,8 +1,7 @@
+import { authFetch } from './utils/authFetch.js';
+
 const API_URL = "/api";
 
-// DOM elements
-const technicianSelect = document.getElementById("technician");
-const getIncidentsBtn = document.querySelector(".technician-panel button");
 const incidentsTableBody = document.querySelector(".incidents-panel tbody");
 const updatePanel = document.querySelector(".update-panel");
 const successPanel = document.querySelector(".success-panel");
@@ -13,55 +12,31 @@ const cancelBtn = updatePanel.querySelector(".btn-secondary");
 
 let selectedIncident = null;
 
-// Load technicians on page load
+// Load incidents for the logged-in technician on page load
 document.addEventListener("DOMContentLoaded", () => {
-  loadTechnicians();
+  loadTechnicianIncidents();
 });
 
-async function loadTechnicians() {
+async function loadTechnicianIncidents() {
   try {
-    const res = await fetch(`${API_URL}/technicians`);
+    const res = await authFetch(`${API_URL}/incidents/assigned`);
     const result = await res.json();
 
     if (!res.ok || !result.success) throw new Error(result.message);
 
-    technicianSelect.innerHTML = '<option value="">-- Select a Technician --</option>';
-    result.data.forEach((tech) => {
-      const opt = document.createElement("option");
-      opt.value = tech.techID;
-      opt.textContent = `${tech.firstName} ${tech.lastName} (${tech.email})`;
-      technicianSelect.appendChild(opt);
-    });
-  } catch (err) {
-    console.error("Failed to load technicians:", err);
-    alert("Unable to load technicians.");
-  }
-}
-
-// Handle "Get Incidents" button
-getIncidentsBtn.addEventListener("click", async () => {
-  const techID = technicianSelect.value;
-  if (!techID) return alert("Please select a technician.");
-
-  try {
-    const res = await fetch(`${API_URL}/incidents`);
-    const result = await res.json();
-
-    if (!res.ok || !result.success) throw new Error(result.message);
-
-    const incidents = result.data.filter((i) => i.techID == techID);
+    const incidents = result.data;
     renderIncidentsTable(incidents);
   } catch (err) {
-    console.error("Error fetching incidents:", err);
-    alert("Failed to fetch incidents.");
+    console.error("Error fetching assigned incidents:", err);
+    alert("Unable to load your assigned incidents.");
   }
-});
+}
 
 function renderIncidentsTable(incidents) {
   incidentsTableBody.innerHTML = "";
 
   if (incidents.length === 0) {
-    incidentsTableBody.innerHTML = "<tr><td colspan='6'>No incidents assigned to this technician.</td></tr>";
+    incidentsTableBody.innerHTML = "<tr><td colspan='6'>You have no assigned incidents.</td></tr>";
     return;
   }
 
@@ -69,8 +44,8 @@ function renderIncidentsTable(incidents) {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${incident.incidentID}</td>
-      <td>${incident.Customer.firstName} ${incident.Customer.lastName}</td>
-      <td>${incident.Product.productCode}</td>
+      <td>${incident.Customer ? incident.Customer.firstName + ' ' + incident.Customer.lastName : 'N/A'}</td>
+      <td>${incident.Product ? incident.Product.productCode : 'N/A'}</td>
       <td>${new Date(incident.dateOpened).toLocaleDateString()}</td>
       <td>${incident.title}</td>
       <td><button class="btn btn-primary" data-id="${incident.incidentID}">Select</button></td>
@@ -86,14 +61,9 @@ function loadIncidentForEdit(incident) {
   selectedIncident = incident;
 
   const detailValues = updatePanel.querySelectorAll(".detail-value");
-  if (detailValues.length < 5) {
-    console.error("Missing detail-value elements");
-    return;
-  }
-
   detailValues[0].textContent = incident.incidentID;
-  detailValues[1].textContent = `${incident.Customer.firstName} ${incident.Customer.lastName} (${incident.Customer.email})`;
-  detailValues[2].textContent = `${incident.Product.productCode} (${incident.Product.name} Version ${incident.Product.version})`;
+  detailValues[1].textContent = incident.Customer ? `${incident.Customer.firstName} ${incident.Customer.lastName}` : "N/A";
+  detailValues[2].textContent = incident.Product ? `${incident.Product.productCode} (${incident.Product.name})` : "N/A";
   detailValues[3].textContent = new Date(incident.dateOpened).toLocaleDateString();
   detailValues[4].textContent = incident.title;
 
@@ -102,7 +72,6 @@ function loadIncidentForEdit(incident) {
 
   updatePanel.classList.remove("hidden");
   successPanel.classList.add("hidden");
-
   updatePanel.scrollIntoView({ behavior: "smooth" });
 }
 
@@ -115,13 +84,12 @@ updateBtn.addEventListener("click", async () => {
 
   const body = {
     description,
-    dateClosed: closeCheckbox.checked ? new Date() : null,
+    dateClosed: closeCheckbox.checked ? new Date().toISOString() : null,
   };
 
   try {
-    const res = await fetch(`${API_URL}/incidents/${selectedIncident.incidentID}`, {
+    const res = await authFetch(`${API_URL}/incidents/${selectedIncident.incidentID}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
@@ -129,10 +97,12 @@ updateBtn.addEventListener("click", async () => {
     if (!res.ok || !result.success) throw new Error(result.message);
 
     updatePanel.classList.add("hidden");
-    successPanel.querySelector(".alert p").textContent = `Incident #${selectedIncident.incidentID} updated successfully.`;
+    successPanel.querySelector(".alert p").textContent = `Incident ${selectedIncident.incidentID} updated successfully.`;
     successPanel.classList.remove("hidden");
 
+    // Reset and reload list from server
     selectedIncident = null;
+    await loadTechnicianIncidents();  
   } catch (err) {
     console.error("Error updating incident:", err);
     alert("Failed to update incident.");

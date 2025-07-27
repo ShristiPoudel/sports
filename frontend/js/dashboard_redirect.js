@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     case 'admin':
       document.querySelector('.menu-section:nth-of-type(1)').style.display = 'block';
 
-      // ❌ Hide "Update Data" link for admin
+      //  Hide "Update Data" link for admin
       const updateDataItem = document.querySelector('#update-data-item');
       if (updateDataItem) updateDataItem.style.display = 'none';
       break;

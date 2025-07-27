@@ -2,12 +2,6 @@ import { body } from "express-validator";
 
 // Validation for creating a new incident (by admin or customer)
 export const createIncidentValidation = [
-  body("customerID")
-    .notEmpty()
-    .withMessage("Customer ID is required")
-    .isInt({ gt: 0 })
-    .withMessage("Customer ID must be a positive integer"),
-
   body("productCode")
     .notEmpty()
     .withMessage("Product code is required")

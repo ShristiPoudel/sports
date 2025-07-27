@@ -1,36 +1,50 @@
+import { authFetch } from "./utils/authFetch.js";
+
 const INCIDENT_API = "/api/incidents";
-const CUSTOMER_API = "/api/customers";
 const PRODUCT_API = "/api/products";
 
 // DOM Elements
-const customerSelect = document.getElementById("customer");
 const productSelect = document.getElementById("product");
 const titleInput = document.getElementById("title");
 const descriptionInput = document.getElementById("description");
 const createBtn = document.getElementById("createBtn");
 const successPanel = document.getElementById("successPanel");
 const successMessage = document.getElementById("successMessage");
+const loadingIndicator = document.getElementById("loadingIndicator");
+const createLoading = document.getElementById("createLoading");
 
-// Load customers
-async function loadCustomers() {
-  try {
-    const res = await fetch(CUSTOMER_API);
-    const { data } = await res.json();
-    customerSelect.innerHTML = `<option value="">-- Select a Customer --</option>`;
-    data.forEach((cust) => {
-      customerSelect.innerHTML += `<option value="${cust.customerID}">${cust.firstName} ${cust.lastName} (${cust.email})</option>`;
-    });
-  } catch (err) {
-    console.error("Failed to load customers:", err);
-    customerSelect.innerHTML = `<option value="">-- Error loading customers --</option>`;
-  }
+// Timeout helper
+function withTimeout(promise, timeoutMs = 5000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Request timed out")), timeoutMs)
+    ),
+  ]);
+}
+
+// Loading UI control
+function showLoading() {
+  if (loadingIndicator) loadingIndicator.classList.remove("hidden");
+}
+function hideLoading() {
+  if (loadingIndicator) loadingIndicator.classList.add("hidden");
+}
+function showCreateLoading() {
+  if (createLoading) createLoading.classList.remove("hidden");
+}
+function hideCreateLoading() {
+  if (createLoading) createLoading.classList.add("hidden");
 }
 
 // Load products
 async function loadProducts() {
+  showLoading();
   try {
-    const res = await fetch(PRODUCT_API);
+    const res = await withTimeout(authFetch(PRODUCT_API), 5000);
+    if (!res || !res.ok) throw new Error("Response not OK");
     const { data } = await res.json();
+
     productSelect.innerHTML = `<option value="">-- Select a Product --</option>`;
     data.forEach((prod) => {
       productSelect.innerHTML += `<option value="${prod.productCode}">${prod.name}</option>`;
@@ -38,40 +52,41 @@ async function loadProducts() {
   } catch (err) {
     console.error("Failed to load products:", err);
     productSelect.innerHTML = `<option value="">-- Error loading products --</option>`;
+  } finally {
+    hideLoading();
   }
 }
 
 // Submit form
 createBtn.addEventListener("click", async () => {
-  const customerID = customerSelect.value;
   const productCode = productSelect.value;
   const title = titleInput.value.trim();
   const description = descriptionInput.value.trim();
 
-  if (!customerID || !productCode || !title || !description) {
-    return alert("Please fill in all fields.");
+  if (!productCode || !title || !description) {
+    alert("Please fill in all fields.");
+    return;
   }
 
-  try {
-    const res = await fetch(INCIDENT_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customerID,
-        productCode,
-        title,
-        description,
-      }),
-    });
+  showCreateLoading();
 
+  try {
+    const res = await withTimeout(
+      authFetch(INCIDENT_API, {
+        method: "POST",
+        body: JSON.stringify({ productCode, title, description }),
+      }),
+      5000
+    );
+
+    if (!res) throw new Error("No response");
     const result = await res.json();
 
     if (res.ok) {
-      successMessage.textContent = `Incident was successfully created and assigned incident ID #${result.data.incidentID}.`;
+      successMessage.textContent = `Incident was successfully created.`;
       successPanel.classList.remove("hidden");
 
       // Reset form
-      customerSelect.value = "";
       productSelect.value = "";
       titleInput.value = "";
       descriptionInput.value = "";
@@ -80,12 +95,13 @@ createBtn.addEventListener("click", async () => {
     }
   } catch (err) {
     console.error("Create error:", err);
-    alert("An error occurred while creating the incident.");
+    alert(err.message || "An error occurred while creating the incident.");
+  } finally {
+    hideCreateLoading();
   }
 });
 
-// Load dropdowns on page load
+// Load products on page load
 document.addEventListener("DOMContentLoaded", () => {
-  loadCustomers();
   loadProducts();
 });

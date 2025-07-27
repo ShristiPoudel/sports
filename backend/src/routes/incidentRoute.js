@@ -35,9 +35,9 @@ router.get(
 
 //post incident
 router.post(
-  "/add",
+  "/",
   verifyToken,
-  authorizeRoles("admin", "customer"),
+  authorizeRoles( "customer"),
   createIncidentValidation,
   validateRequest,
   (req, res,next) => controller.createIncident(req, res,next)

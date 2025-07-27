@@ -4,6 +4,7 @@ import verifyToken from "../middlewares/authMiddleware.js";
 import authorizeRoles from "../middlewares/roleMiddleware.js";
 import { createCustomerValidation, updateCustomerValidation } from "../validations/customerValidation.js";
 import validateRequest from "../middlewares/validateRequest.js";
+import { createCustomerByAdminValidation } from "../validations/customerValidation.js";
 
 const router = Router();
 
@@ -33,7 +34,6 @@ router.get("/:customerID",
 });
 
 
-
 //add customer data
 router.post("/add",
   verifyToken,
@@ -57,7 +57,7 @@ router.put("/update/:customerID",
 // DELETE customer
 router.delete("/delete/:customerID", 
   verifyToken,
-  authorizeRoles("admin","customer"),
+  authorizeRoles("admin"),
   (req, res, next ) => {
   customerController.deleteCustomer(req, res, next);
 });
@@ -69,6 +69,16 @@ router.get(
   authorizeRoles("admin"),
   (req, res, next ) => customerController.searchByLastName(req, res,next )
 );
+
+
+router.post("/addbyadmin",
+  verifyToken,
+  authorizeRoles("admin"),
+  createCustomerByAdminValidation,
+  validateRequest,
+  (req, res, next) => customerController.addCustomerByAdmin(req, res, next)
+);
+
 
 
 export default router;

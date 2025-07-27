@@ -1,3 +1,5 @@
+import { authFetch } from "./utils/authFetch.js";
+
 const API_URL = "/api/technicians";
 
 // DOM elements
@@ -14,10 +16,9 @@ const passwordInput = document.getElementById("password");
 // Fetch and display all technicians
 async function fetchTechnicians() {
   try {
-    const res = await fetch(API_URL);
+    const res = await authFetch(API_URL); // uses GET by default
     const result = await res.json();
 
-    // Check response shape — controller sends { success: true, data: [...] }
     if (result.success && Array.isArray(result.data)) {
       renderTable(result.data);
     } else {
@@ -39,8 +40,8 @@ function renderTable(technicians) {
     row.innerHTML = `
       <td>${tech.firstName}</td>
       <td>${tech.lastName}</td>
-      <td>${tech.email}</td>
-      <td>${tech.phone}</td>
+      <td>${tech?.User?.email ?? "-"}</td>
+      <td>${tech.phone || "-"}</td>
       <td><button class="btn btn-danger" data-id="${tech.techID}">Delete</button></td>
     `;
     tbody.appendChild(row);
@@ -71,24 +72,22 @@ if (form) {
     }
 
     try {
-      const res = await fetch(`${API_URL}/add`, {
+      const res = await authFetch(`${API_URL}/addbyadmin`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(technician),
       });
 
-      if (res.ok) {
-        // Optionally parse response to check success
-        const result = await res.json();
-        if (result.success === false) {
-          alert("Add failed: " + (result.message || "Unknown error"));
-          return;
-        }
-        fetchTechnicians();
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        alert("Technician added!");
         form.reset();
+        fetchTechnicians();
       } else {
-        const err = await res.json();
-        alert("Add failed: " + (err.message || "Unknown error"));
+        alert("Add failed: " + (result.message || "Unknown error"));
       }
     } catch (err) {
       console.error("Add error:", err);
@@ -104,20 +103,16 @@ async function handleDelete(e) {
 
   if (confirm(`Delete technician ID ${id}?`)) {
     try {
-      const res = await fetch(`${API_URL}/delete/${id}`, {
+      const res = await authFetch(`${API_URL}/delete/${id}`, {
         method: "DELETE",
       });
 
-      if (res.ok) {
-        const result = await res.json();
-        if (result.success) {
-          fetchTechnicians();
-        } else {
-          alert("Delete failed: " + (result.message || "Unknown error"));
-        }
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        fetchTechnicians();
       } else {
-        const err = await res.json();
-        alert("Delete failed: " + (err.message || "Unknown error"));
+        alert("Delete failed: " + (result.message || "Unknown error"));
       }
     } catch (err) {
       console.error("Delete error:", err);
