@@ -5,6 +5,9 @@ const API_URL = "/api/customers";
 // DOM elements
 const form = document.getElementById("customerForm");
 const tbody = document.querySelector("tbody");
+const loadingIndicator = document.getElementById("loadingIndicator");
+const submitLoading = document.getElementById("submitLoading");
+const submitBtn = form?.querySelector('button[type="submit"]');
 
 // Form inputs
 const firstNameInput = document.getElementById("addFirstName");
@@ -18,11 +21,37 @@ const stateInput = document.getElementById("addState");
 const postalCodeInput = document.getElementById("addPostalCode");
 const countryInput = document.getElementById("addCountry");
 
+// Utility functions for loading state
+function showLoading(msg = "Loading, please wait...") {
+  if (loadingIndicator) {
+    loadingIndicator.textContent = msg;
+    loadingIndicator.classList.remove("hidden");
+  }
+}
+function hideLoading() {
+  if (loadingIndicator) loadingIndicator.classList.add("hidden");
+}
+function showSubmitLoading() {
+  if (submitLoading) submitLoading.classList.remove("hidden");
+}
+function hideSubmitLoading() {
+  if (submitLoading) submitLoading.classList.add("hidden");
+}
+function disableSubmit() {
+  if (submitBtn) submitBtn.disabled = true;
+}
+function enableSubmit() {
+  if (submitBtn) submitBtn.disabled = false;
+}
+
 // Fetch and display all customers
 async function fetchCustomers() {
+  showLoading("Loading customers...");
   try {
-    const res = await authFetch(API_URL); // uses GET by default
+    const res = await authFetch(API_URL);
     const result = await res.json();
+
+    await new Promise(resolve => setTimeout(resolve, 500)); // Optional delay
 
     if (result.success && Array.isArray(result.data)) {
       renderTable(result.data);
@@ -34,6 +63,8 @@ async function fetchCustomers() {
     console.error("Error fetching customers:", err);
     alert("Error fetching customers: " + err.message);
     tbody.innerHTML = "<tr><td colspan='5'>Error loading data.</td></tr>";
+  } finally {
+    hideLoading();
   }
 }
 
@@ -52,13 +83,12 @@ function renderTable(customers) {
     tbody.appendChild(row);
   });
 
-  // Attach delete button events
   document.querySelectorAll(".btn-danger").forEach((btn) => {
     btn.addEventListener("click", handleDelete);
   });
 }
 
-// Handle form submission to add customer
+// Handle form submission
 if (form) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -82,14 +112,17 @@ if (form) {
       return;
     }
 
+    disableSubmit();
+    showSubmitLoading();
+
     try {
       const res = await authFetch(`${API_URL}/addbyadmin`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(customer),
       });
+
+      await new Promise(resolve => setTimeout(resolve, 500)); // Optional delay
 
       const result = await res.json();
 
@@ -103,6 +136,9 @@ if (form) {
     } catch (err) {
       console.error("Add error:", err);
       alert("Add error: " + err.message);
+    } finally {
+      hideSubmitLoading();
+      enableSubmit();
     }
   });
 }
@@ -113,6 +149,11 @@ async function handleDelete(e) {
   if (!id) return;
 
   if (confirm(`Delete customer ID ${id}?`)) {
+    const btn = e.target;
+    const originalText = btn.textContent;
+    btn.textContent = "Deleting...";
+    btn.disabled = true;
+
     try {
       const res = await authFetch(`${API_URL}/delete/${id}`, {
         method: "DELETE",
@@ -128,16 +169,23 @@ async function handleDelete(e) {
     } catch (err) {
       console.error("Delete error:", err);
       alert("Delete error: " + err.message);
+    } finally {
+      btn.textContent = originalText;
+      btn.disabled = false;
     }
   }
 }
 
 
+
 // Load country list dynamically
 async function loadCountries() {
+  showLoading("Loading countries...");
   try {
     const res = await authFetch("/api/countries");
     const result = await res.json();
+
+    await new Promise(resolve => setTimeout(resolve, 500)); // Optional delay
 
     const select = document.getElementById("addCountry");
     select.innerHTML = "";
@@ -156,9 +204,10 @@ async function loadCountries() {
     console.error("Error loading countries:", err);
     const select = document.getElementById("addCountry");
     select.innerHTML = `<option value="">Error loading countries</option>`;
+  } finally {
+    hideLoading();
   }
 }
-
 
 // Initial load
 loadCountries();

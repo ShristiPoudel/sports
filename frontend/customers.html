@@ -25,6 +25,7 @@
 
       <!-- Customers Table -->
       <div class="table-container mb-4">
+        <div id="loadingIndicator" class="loading-indicator hidden">Loading customers...</div>
         <table>
           <thead>
             <tr>
@@ -97,6 +98,7 @@
             <input type="password" id="addPassword" name="password" required />
           </div>
 
+          <div id="submitLoading" class="hidden">Submitting, please wait...</div>
           <button type="submit" class="btn btn-primary">Add Customer</button>
         </form>
       </div>

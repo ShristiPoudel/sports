@@ -9,9 +9,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  // Delay utility
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
   // Sections
   const customerSection = document.getElementById('customer-section');
   const technicianSection = document.getElementById('technician-section');
+  const loadingIndicator = document.getElementById('loadingIndicator');
+  const submitLoading = document.getElementById('submitLoading');
+  const updateBtn = document.querySelector('.btn-primary');
+  const cancelBtn = document.querySelector('.btn-secondary');
 
   // Customer Inputs
   const custFirstName = document.getElementById('custFirstName');
@@ -29,15 +36,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   const techLastName = document.getElementById('techLastName');
   const techPhone = document.getElementById('techPhone');
 
-  const updateBtn = document.querySelector('.btn-primary');
-  const cancelBtn = document.querySelector('.btn-secondary');
-
   let customerID = null;
   let techID = null;
 
-  // Load country list for customers
+  // Utility functions
+  function showLoading(msg = "Loading...") {
+    if (loadingIndicator) {
+      loadingIndicator.textContent = msg;
+      loadingIndicator.classList.remove("hidden");
+    }
+  }
+  function hideLoading() {
+    if (loadingIndicator) loadingIndicator.classList.add("hidden");
+  }
+  function showSubmitLoading() {
+    if (submitLoading) submitLoading.classList.remove("hidden");
+  }
+  function hideSubmitLoading() {
+    if (submitLoading) submitLoading.classList.add("hidden");
+  }
+  function disableSubmit() {
+    if (updateBtn) updateBtn.disabled = true;
+  }
+  function enableSubmit() {
+    if (updateBtn) updateBtn.disabled = false;
+  }
+
+  showLoading("Loading profile information...");
+
+  // Load country list
   try {
     const countryRes = await authFetch('/api/countries');
+    await delay(300); // Simulated delay for UX
+
     if (!countryRes.ok) throw new Error('Failed to fetch countries');
 
     const countries = await countryRes.json();
@@ -52,12 +83,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     alert('Unable to load country list.');
   }
 
-  // Load data based on role
-  if (role === 'customer') {
-    customerSection.style.display = 'block';
+  // Load role-specific data
+  try {
+    if (role === 'customer') {
+      customerSection.style.display = 'block';
 
-    try {
       const res = await authFetch('/api/customers/me');
+      await delay(500); // Simulated delay for UX
+
       if (!res.ok) throw new Error('Failed to fetch customer data');
 
       const { data: customer } = await res.json();
@@ -72,16 +105,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       countryInput.value = customer.countryCode || '';
       custPhone.value = customer.phone || '';
       countryCodeInput.value = customer.countryCode || '';
-    } catch (err) {
-      console.error('Error fetching customer profile:', err);
-      alert('Unable to load customer information.');
-    }
+    } else if (role === 'technician') {
+      technicianSection.style.display = 'block';
 
-  } else if (role === 'technician') {
-    technicianSection.style.display = 'block';
-
-    try {
       const res = await authFetch('/api/technicians/me');
+      await delay(500); // Simulated delay for UX
+
       if (!res.ok) throw new Error('Failed to fetch technician data');
 
       const { data: tech } = await res.json();
@@ -90,36 +119,42 @@ document.addEventListener('DOMContentLoaded', async () => {
       techFirstName.value = tech.firstName || '';
       techLastName.value = tech.lastName || '';
       techPhone.value = tech.phone || '';
-    } catch (err) {
-      console.error('Error fetching technician profile:', err);
-      alert('Unable to load technician information.');
+    } else {
+      alert('Unauthorized role.');
+      window.location.href = 'index.html';
+      return;
     }
-
-  } else {
-    alert('Unauthorized role. Only customers and technicians can update data.');
-    window.location.href = 'index.html';
-    return;
+  } catch (err) {
+    console.error('Error fetching profile:', err);
+    alert('Failed to load your profile.');
+  } finally {
+    hideLoading();
   }
 
   // Handle update
   updateBtn.addEventListener('click', async (e) => {
     e.preventDefault();
 
-    if (role === 'customer') {
-      if (!customerID) return alert("Missing customer ID.");
+    disableSubmit();
+    showSubmitLoading();
 
-      const updatedCustomer = {
-        firstName: custFirstName.value.trim(),
-        lastName: custLastName.value.trim(),
-        address: addressInput.value.trim(),
-        city: cityInput.value.trim(),
-        state: stateInput.value.trim(),
-        postalCode: postalCodeInput.value.trim(),
-        countryCode: countryInput.value.trim(),
-        phone: custPhone.value.trim(),
-      };
+    try {
+      await delay(500); // Simulated delay before submitting
 
-      try {
+      if (role === 'customer') {
+        if (!customerID) throw new Error("Missing customer ID.");
+
+        const updatedCustomer = {
+          firstName: custFirstName.value.trim(),
+          lastName: custLastName.value.trim(),
+          address: addressInput.value.trim(),
+          city: cityInput.value.trim(),
+          state: stateInput.value.trim(),
+          postalCode: postalCodeInput.value.trim(),
+          countryCode: countryInput.value.trim(),
+          phone: custPhone.value.trim(),
+        };
+
         const res = await authFetch(`/api/customers/update/${customerID}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -132,21 +167,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
           alert(result.message || 'Failed to update customer profile.');
         }
-      } catch (err) {
-        console.error('Error updating customer:', err);
-        alert('Something went wrong while updating the profile.');
-      }
 
-    } else if (role === 'technician') {
-      if (!techID) return alert("Missing technician ID.");
+      } else if (role === 'technician') {
+        if (!techID) throw new Error("Missing technician ID.");
 
-      const updatedTech = {
-        firstName: techFirstName.value.trim(),
-        lastName: techLastName.value.trim(),
-        phone: techPhone.value.trim(),
-      };
+        const updatedTech = {
+          firstName: techFirstName.value.trim(),
+          lastName: techLastName.value.trim(),
+          phone: techPhone.value.trim(),
+        };
 
-      try {
         const res = await authFetch(`/api/technicians/update/${techID}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -159,14 +189,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
           alert(result.message || 'Failed to update technician profile.');
         }
-      } catch (err) {
-        console.error('Error updating technician:', err);
-        alert('Something went wrong while updating the technician profile.');
       }
+    } catch (err) {
+      console.error('Update error:', err);
+      alert('Something went wrong while updating.');
+    } finally {
+      hideSubmitLoading();
+      enableSubmit();
     }
   });
 
-  // Handle cancel
+  // Cancel
   cancelBtn.addEventListener('click', () => {
     window.location.href = 'index.html';
   });

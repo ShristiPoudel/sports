@@ -17,6 +17,11 @@
     <main class="container">
       <div class="main-panel small-panel">
         <h2>Complete Your Customer Profile</h2>
+
+        <div id="loadingIndicator" class="hidden">
+          Loading, please wait...
+        </div>
+
         <form id="customerForm">
           <div class="form-group">
             <label>First Name:</label
@@ -45,10 +50,12 @@
           <div class="form-group">
             <label>CountryCode:</label><input type="text" id="countryCode" />
           </div>
-
+           
           <button type="submit" class="btn btn-primary full-width">
             Submit
           </button>
+            <!-- Submit loading indicator -->
+            <div id="submitLoading" class="hidden">Submitting your profile...</div>
         </form>
       </div>
     </main>

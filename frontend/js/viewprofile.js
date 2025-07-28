@@ -1,67 +1,63 @@
 import { authFetch } from './utils/authFetch.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log("refreshToken in viewprofile:", localStorage.getItem('refreshToken'));
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  const loadingIndicator = document.getElementById('loadingIndicator');
+  const showLoading = (msg = 'Loading...') => {
+    loadingIndicator.textContent = msg;
+    loadingIndicator.classList.remove('hidden');
+  };
+  const hideLoading = () => loadingIndicator.classList.add('hidden');
+
+  const setText = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text || '';
+  };
+
+  showLoading("Loading profile...");
 
   try {
-    // Fetch user profile
     const res = await authFetch('/api/profile');
-    if (!res || !res.ok) throw new Error('Unable to fetch profile.');
+    await delay(500);
+    if (!res.ok) throw new Error('Profile fetch failed');
 
-    const responseData = await res.json();
-    const profile = responseData.data;
+    const { data: profile } = await res.json();
 
-    const container = document.getElementById('profileDetails');
+    setText('username', profile.username);
+    setText('email', profile.email);
+    setText('role', profile.role);
 
-    // Base profile info
-    let html = `
-      <div class="detail-row"><span class="detail-label">Username:</span><span class="detail-value">${profile.username}</span></div>
-      <div class="detail-row"><span class="detail-label">Email:</span><span class="detail-value">${profile.email}</span></div>
-      <div class="detail-row"><span class="detail-label">Role:</span><span class="detail-value">${profile.role}</span></div>
-    `;
-
-    // Fetch additional details based on role
     if (profile.role === 'customer' && profile.customerID) {
       const customerRes = await authFetch(`/api/customers/${profile.customerID}`);
-
-      if (customerRes && customerRes.ok) {
-        const customerData = (await customerRes.json()).data;
-
-        html += `
-          <div class="detail-row"><span class="detail-label">First Name:</span><span class="detail-value">${customerData.firstName}</span></div>
-          <div class="detail-row"><span class="detail-label">Last Name:</span><span class="detail-value">${customerData.lastName}</span></div>
-          <div class="detail-row"><span class="detail-label">Phone:</span><span class="detail-value">${customerData.phone}</span></div>
-          <div class="detail-row"><span class="detail-label">Address:</span><span class="detail-value">${customerData.address}</span></div>
-          <div class="detail-row"><span class="detail-label">City:</span><span class="detail-value">${customerData.city}</span></div>
-          <div class="detail-row"><span class="detail-label">State:</span><span class="detail-value">${customerData.state}</span></div>
-          <div class="detail-row"><span class="detail-label">Postal Code:</span><span class="detail-value">${customerData.postalCode}</span></div>
-          <div class="detail-row"><span class="detail-label">Country Code:</span><span class="detail-value">${customerData.countryCode}</span></div>
-        `;
-      } else {
-        html += `<div class="detail-row error">Unable to fetch customer details.</div>`;
+      await delay(500);
+      if (customerRes.ok) {
+        const { data } = await customerRes.json();
+        document.getElementById('customerFields').classList.remove('hidden');
+        setText('firstName', data.firstName);
+        setText('lastName', data.lastName);
+        setText('phone', data.phone);
+        setText('address', data.address);
+        setText('city', data.city);
+        setText('state', data.state);
+        setText('postalCode', data.postalCode);
+        setText('countryCode', data.countryCode);
       }
     } else if (profile.role === 'technician' && profile.techID) {
-      const technicianRes = await authFetch(`/api/technicians/${profile.techID}`);
-
-      if (technicianRes && technicianRes.ok) {
-        const technicianData = (await technicianRes.json()).data;
-
-        html += `
-          <div class="detail-row"><span class="detail-label">First Name:</span><span class="detail-value">${technicianData.firstName}</span></div>
-          <div class="detail-row"><span class="detail-label">Last Name:</span><span class="detail-value">${technicianData.lastName}</span></div>
-          <div class="detail-row"><span class="detail-label">Phone:</span><span class="detail-value">${technicianData.phone}</span></div>
-        `;
-      } else {
-        html += `<div class="detail-row error">Unable to fetch technician details.</div>`;
+      const techRes = await authFetch(`/api/technicians/${profile.techID}`);
+      await delay(500);
+      if (techRes.ok) {
+        const { data } = await techRes.json();
+        document.getElementById('technicianFields').classList.remove('hidden');
+        setText('techFirstName', data.firstName);
+        setText('techLastName', data.lastName);
+        setText('techPhone', data.phone);
       }
     }
-
-    container.innerHTML = html;
   } catch (err) {
-    alert("Failed to load profile.");
     console.error(err);
-    // Optionally redirect to login on error:
-    // localStorage.clear();
-    // window.location.href = 'login_users.html';
+    alert("Failed to load profile.");
+  } finally {
+    hideLoading();
   }
 });

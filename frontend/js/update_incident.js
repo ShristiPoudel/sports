@@ -2,6 +2,7 @@ import { authFetch } from './utils/authFetch.js';
 
 const API_URL = "/api";
 
+// DOM Elements
 const incidentsTableBody = document.querySelector(".incidents-panel tbody");
 const updatePanel = document.querySelector(".update-panel");
 const successPanel = document.querySelector(".success-panel");
@@ -9,26 +10,50 @@ const descriptionInput = document.getElementById("description");
 const closeCheckbox = document.getElementById("closeIncident");
 const updateBtn = updatePanel.querySelector(".btn-primary");
 const cancelBtn = updatePanel.querySelector(".btn-secondary");
+const loadingIndicator = document.getElementById("loadingIndicator");
+const submitLoading = document.getElementById("submitLoading");
 
 let selectedIncident = null;
 
-// Load incidents for the logged-in technician on page load
+// Utility functions
+function showLoading(msg = "Loading...") {
+  if (loadingIndicator) {
+    loadingIndicator.textContent = msg;
+    loadingIndicator.classList.remove("hidden");
+  }
+}
+function hideLoading() {
+  if (loadingIndicator) loadingIndicator.classList.add("hidden");
+}
+function showSubmitLoading() {
+  if (submitLoading) submitLoading.classList.remove("hidden");
+}
+function hideSubmitLoading() {
+  if (submitLoading) submitLoading.classList.add("hidden");
+}
+
+// Load incidents for technician
 document.addEventListener("DOMContentLoaded", () => {
   loadTechnicianIncidents();
 });
 
 async function loadTechnicianIncidents() {
+  showLoading("Loading your incidents...");
   try {
     const res = await authFetch(`${API_URL}/incidents/assigned`);
     const result = await res.json();
 
+    await new Promise(resolve => setTimeout(resolve, 400)); // Optional delay
+
     if (!res.ok || !result.success) throw new Error(result.message);
 
-    const incidents = result.data;
-    renderIncidentsTable(incidents);
+    renderIncidentsTable(result.data);
   } catch (err) {
     console.error("Error fetching assigned incidents:", err);
     alert("Unable to load your assigned incidents.");
+    incidentsTableBody.innerHTML = "<tr><td colspan='6'>Failed to load incidents.</td></tr>";
+  } finally {
+    hideLoading();
   }
 }
 
@@ -75,7 +100,7 @@ function loadIncidentForEdit(incident) {
   updatePanel.scrollIntoView({ behavior: "smooth" });
 }
 
-// Handle update
+// Update incident handler
 updateBtn.addEventListener("click", async () => {
   if (!selectedIncident) return alert("No incident selected");
 
@@ -87,9 +112,13 @@ updateBtn.addEventListener("click", async () => {
     dateClosed: closeCheckbox.checked ? new Date().toISOString() : null,
   };
 
+  updateBtn.disabled = true;
+  showSubmitLoading();
+
   try {
     const res = await authFetch(`${API_URL}/incidents/${selectedIncident.incidentID}`, {
       method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
@@ -100,16 +129,18 @@ updateBtn.addEventListener("click", async () => {
     successPanel.querySelector(".alert p").textContent = `Incident ${selectedIncident.incidentID} updated successfully.`;
     successPanel.classList.remove("hidden");
 
-    // Reset and reload list from server
     selectedIncident = null;
-    await loadTechnicianIncidents();  
+    await loadTechnicianIncidents();
   } catch (err) {
     console.error("Error updating incident:", err);
     alert("Failed to update incident.");
+  } finally {
+    updateBtn.disabled = false;
+    hideSubmitLoading();
   }
 });
 
-// Handle cancel
+// Cancel update
 cancelBtn.addEventListener("click", () => {
   updatePanel.classList.add("hidden");
   successPanel.classList.add("hidden");

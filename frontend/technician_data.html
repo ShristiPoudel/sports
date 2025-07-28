@@ -16,6 +16,7 @@
 
     <main class="container">
       <div class="main-panel small-panel">
+        <div id="loadingIndicator" class="hidden">Loading....</div>
         <h2>Complete Your Technician Profile</h2>
         <form id="technicianForm">
           <div class="form-group">
@@ -30,7 +31,9 @@
             <label>Phone:</label><input type="text" id="phone" required />
           </div>
 
+
           <button type="submit" class="btn btn-primary full-width">
+          <div id="submitLoading" class="hidden">Submitting profile...</div>
             Submit
           </button>
         </form>

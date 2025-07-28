@@ -36,7 +36,6 @@ function hideLoading() {
 async function loadIncidents() {
     showLoading();
     try {
-        // Simulate 5-second loading delay
         await new Promise(resolve => setTimeout(resolve, 500));
 
         const res = await authFetch(INCIDENTS_API);

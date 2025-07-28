@@ -25,6 +25,7 @@
 
         <!-- Product Table -->
         <div class="table-container mb-4">
+          <div id="loadingIndicator" class="loading-indicator hidden">Loading products...</div>
           <table>
             <thead>
               <tr>
@@ -66,7 +67,9 @@
               <input type="date" id="releaseDate" name="releaseDate" />
             </div>
 
+
             <button type="submit" class="btn btn-primary">Add Product</button>
+            <div id="loadingAddIndicator" class="loading-indicator hidden">Add products...</div>
           </form>
         </div>
       </div>

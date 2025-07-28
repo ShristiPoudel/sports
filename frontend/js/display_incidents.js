@@ -22,74 +22,132 @@ const detailDateClosed = document.getElementById("detailDateClosed");
 const detailTitle = document.getElementById("detailTitle");
 const detailDescription = document.getElementById("detailDescription");
 
+const loadingIndicator = document.getElementById("loadingIndicator");
+
 let allIncidents = [];
 
+// Utility: loading controls
+function showLoading(message = "Loading, please wait...") {
+  if (loadingIndicator) {
+    loadingIndicator.textContent = message;
+    loadingIndicator.classList.remove("hidden");
+  }
+}
+
+function hideLoading() {
+  if (loadingIndicator) {
+    loadingIndicator.classList.add("hidden");
+  }
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Initial load
 document.addEventListener("DOMContentLoaded", async () => {
-  await Promise.all([loadTechnicians(), loadCustomers(), loadProducts()]);
+  await loadTechnicians();
+  await loadCustomers();
+  await loadProducts();
   await loadIncidents();
 });
 
+// Load technicians
 async function loadTechnicians() {
-  const res = await authFetch(TECH_API);
-  if (!res || !res.ok) {
-    console.error("Failed to load technicians", res);
-    return;
+  showLoading("Loading technicians...");
+  try {
+    const response = await authFetch(TECH_API);
+    await delay(500);
+    if (!response.ok) throw new Error(`Technician API Error: ${response.status}`);
+    const result = await response.json();
+    const technicians = result.data || [];
+
+    technicians.forEach(tech => {
+      const option = document.createElement("option");
+      option.value = tech.techID;
+      option.textContent = `${tech.firstName} ${tech.lastName}`;
+      technicianSelect.appendChild(option);
+    });
+
+    console.log("Technicians loaded:", technicians.length);
+  } catch (error) {
+    console.error("loadTechnicians error:", error);
+  } finally {
+    hideLoading();
   }
-  const json = await res.json();
-  const data = json.data || [];
-  data.forEach(tech => {
-    const opt = document.createElement("option");
-    opt.value = tech.techID;
-    opt.textContent = `${tech.firstName} ${tech.lastName}`;
-    technicianSelect.appendChild(opt);
-  });
 }
 
+// Load customers
 async function loadCustomers() {
-  const res = await authFetch(CUST_API);
-  if (!res || !res.ok) {
-    console.error("Failed to load customers", res);
-    return;
+  showLoading("Loading customers...");
+  try {
+    const response = await authFetch(CUST_API);
+    await delay(500);
+    if (!response.ok) throw new Error(`Customer API Error: ${response.status}`);
+    const result = await response.json();
+    const customers = result.data || [];
+
+    customers.forEach(cust => {
+      const option = document.createElement("option");
+      option.value = cust.customerID;
+      option.textContent = `${cust.firstName} ${cust.lastName}`;
+      customerSelect.appendChild(option);
+    });
+
+    console.log("Customers loaded:", customers.length);
+  } catch (error) {
+    console.error("loadCustomers error:", error);
+  } finally {
+    hideLoading();
   }
-  const json = await res.json();
-  const data = json.data || [];
-  data.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c.customerID;
-    opt.textContent = `${c.firstName} ${c.lastName}`;
-    customerSelect.appendChild(opt);
-  });
 }
 
+// Load products
 async function loadProducts() {
-  const res = await authFetch(PROD_API);
-  if (!res || !res.ok) {
-    console.error("Failed to load products", res);
-    return;
+  showLoading("Loading products...");
+  try {
+    const response = await authFetch(PROD_API);
+    await delay(500);
+    if (!response.ok) throw new Error(`Product API Error: ${response.status}`);
+    const result = await response.json();
+    const products = result.data || [];
+
+    products.forEach(prod => {
+      const option = document.createElement("option");
+      option.value = prod.productCode;
+      option.textContent = `${prod.productCode} (${prod.name})`;
+      productSelect.appendChild(option);
+    });
+
+    console.log("Products loaded:", products.length);
+  } catch (error) {
+    console.error("loadProducts error:", error);
+  } finally {
+    hideLoading();
   }
-  const json = await res.json();
-  const data = json.data || [];
-  data.forEach(p => {
-    const opt = document.createElement("option");
-    opt.value = p.productCode;
-    opt.textContent = `${p.productCode} (${p.name})`;
-    productSelect.appendChild(opt);
-  });
 }
 
+// Load incidents
 async function loadIncidents() {
-  const res = await authFetch(INCIDENTS_API);
-  if (!res || !res.ok) {
-    console.error("Failed to load incidents", res);
+  showLoading("Loading incidents...");
+  try {
+    const response = await authFetch(INCIDENTS_API);
+    await delay(500);
+    if (!response.ok) throw new Error(`Incident API Error: ${response.status}`);
+    const result = await response.json();
+    allIncidents = result.data || [];
+
+    renderIncidents(allIncidents);
+    console.log("Incidents loaded:", allIncidents.length);
+  } catch (error) {
+    console.error("loadIncidents error:", error);
     tbody.innerHTML = "<tr><td colspan='7'>Failed to load incidents.</td></tr>";
-    return;
+  } finally {
+    hideLoading();
   }
-  const json = await res.json();
-  const data = json.data || [];
-  allIncidents = data;
-  renderIncidents(data);
 }
 
+// Render incidents into table
 function renderIncidents(incidents) {
   tbody.innerHTML = "";
 
@@ -98,56 +156,61 @@ function renderIncidents(incidents) {
     return;
   }
 
-  incidents.forEach(inc => {
+  incidents.forEach(incident => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${inc.incidentID}</td>
-      <td>${inc.Customer?.firstName || ""} ${inc.Customer?.lastName || ""}</td>
-      <td>${inc.Product?.productCode || ""}</td>
-      <td>${inc.Technician ? `${inc.Technician.firstName} ${inc.Technician.lastName}` : 'Unassigned'}</td>
-      <td>${inc.dateOpened?.split("T")[0] || ""}</td>
-      <td>${inc.dateClosed?.split("T")[0] || "-"}</td>
-      <td>${inc.title || ""}</td>
+      <td>${incident.incidentID}</td>
+      <td>${incident.Customer?.firstName || ""} ${incident.Customer?.lastName || ""}</td>
+      <td>${incident.Product?.productCode || ""}</td>
+      <td>${incident.Technician ? `${incident.Technician.firstName} ${incident.Technician.lastName}` : 'Unassigned'}</td>
+      <td>${incident.dateOpened?.split("T")[0] || ""}</td>
+      <td>${incident.dateClosed?.split("T")[0] || "-"}</td>
+      <td>${incident.title || ""}</td>
     `;
     row.addEventListener("click", () => {
-      showIncidentDetails(inc.incidentID);
+      showIncidentDetails(incident.incidentID);
     });
     tbody.appendChild(row);
   });
 }
 
+// Show selected incident details
 function showIncidentDetails(id) {
-  const inc = allIncidents.find(i => i.incidentID == id);
-  if (!inc) return;
+  const incident = allIncidents.find(i => i.incidentID == id);
+  if (!incident) return;
 
-  detailIncidentID.textContent = `#${inc.incidentID}`;
-  detailCustomer.textContent = `${inc.Customer?.firstName || "-"} ${inc.Customer?.lastName || ""} (${inc.Customer?.email || "-"})`;
-  detailProduct.textContent = `${inc.Product?.productCode || "-"} (${inc.Product?.name || "-"})`;
-  detailTechnician.textContent = inc.Technician
-    ? `${inc.Technician.firstName} ${inc.Technician.lastName} (${inc.Technician.email || "-"})`
+  detailIncidentID.textContent = `#${incident.incidentID}`;
+  detailCustomer.textContent = `${incident.Customer?.firstName || "-"} ${incident.Customer?.lastName || ""} (${incident.Customer?.email || "-"})`;
+  detailProduct.textContent = `${incident.Product?.productCode || "-"} (${incident.Product?.name || "-"})`;
+  detailTechnician.textContent = incident.Technician
+    ? `${incident.Technician.firstName} ${incident.Technician.lastName} (${incident.Technician.email || "-"})`
     : "Unassigned";
-  detailDateOpened.textContent = inc.dateOpened?.split("T")[0] || "-";
-  detailDateClosed.textContent = inc.dateClosed?.split("T")[0] || "Still Open";
-  detailTitle.textContent = inc.title || "-";
-  detailDescription.textContent = inc.description || "-";
+  detailDateOpened.textContent = incident.dateOpened?.split("T")[0] || "-";
+  detailDateClosed.textContent = incident.dateClosed?.split("T")[0] || "Still Open";
+  detailTitle.textContent = incident.title || "-";
+  detailDescription.textContent = incident.description || "-";
 
   document.querySelector(".incident-details-panel").scrollIntoView({ behavior: "smooth" });
 }
 
-filterBtn.addEventListener("click", () => {
+// Filter incidents
+filterBtn.addEventListener("click", async () => {
+  showLoading("Filtering incidents...");
+  await delay(500);
+
   const techID = technicianSelect.value;
   const custID = customerSelect.value;
   const prodCode = productSelect.value;
   const status = statusSelect.value;
 
-  const filtered = allIncidents.filter(inc => {
+  const filtered = allIncidents.filter(incident => {
     return (
-      (!techID || inc.techID == techID) &&
-      (!custID || inc.customerID == custID) &&
-      (!prodCode || inc.productCode == prodCode) &&
+      (!techID || incident.techID == techID) &&
+      (!custID || incident.customerID == custID) &&
+      (!prodCode || incident.productCode == prodCode) &&
       (!status ||
-        (status === "open" && !inc.dateClosed) ||
-        (status === "closed" && inc.dateClosed))
+        (status === "open" && !incident.dateClosed) ||
+        (status === "closed" && incident.dateClosed))
     );
   });
 
@@ -165,4 +228,6 @@ filterBtn.addEventListener("click", () => {
     detailTitle.textContent = "-";
     detailDescription.textContent = "No incident matches the selected filters.";
   }
+
+  hideLoading();
 });

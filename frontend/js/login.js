@@ -3,6 +3,11 @@ import { authFetch } from './utils/authFetch.js';
 const loginBtn = document.getElementById('loginBtn');
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
+const loadingIndicator = document.getElementById('loadingIndicator');
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 loginBtn.addEventListener('click', async () => {
   const email = emailInput.value.trim();
@@ -13,6 +18,10 @@ loginBtn.addEventListener('click', async () => {
     return;
   }
 
+  // Show loading and disable button
+  loadingIndicator.classList.remove('hidden');
+  loginBtn.disabled = true;
+
   try {
     // Initial login request (no token required)
     const res = await fetch('/api/auth/login', {
@@ -20,6 +29,9 @@ loginBtn.addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
+
+    // 500ms delay before parsing response
+    await sleep(500);
 
     const result = await res.json();
 
@@ -35,6 +47,9 @@ loginBtn.addEventListener('click', async () => {
     localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('userRole', user.role);
     localStorage.setItem('userID', user.id);
+
+    // 500ms delay before redirect/profile fetch
+    await sleep(500);
 
     // Redirect based on role
     if (user.role === 'customer') {
@@ -70,5 +85,9 @@ loginBtn.addEventListener('click', async () => {
   } catch (err) {
     console.error("Login error:", err);
     alert("Server/network error.");
+  } finally {
+    // Hide loading and enable button
+    loadingIndicator.classList.add('hidden');
+    loginBtn.disabled = false;
   }
 });

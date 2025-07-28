@@ -13,7 +13,7 @@ import UserToken from "./userTokenModel.js";
 Country.hasMany(Customer, { foreignKey: 'countryCode' });
 Customer.belongsTo(Country, { foreignKey: 'countryCode' });
 
-Customer.hasMany(Incident, { foreignKey: 'customerID' });
+Customer.hasMany(Incident, { foreignKey: 'customerID', onDelete: 'CASCADE' });
 Incident.belongsTo(Customer, { foreignKey: 'customerID' });
 
 Product.hasMany(Incident, { foreignKey: 'productCode' });

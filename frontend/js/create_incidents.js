@@ -10,22 +10,15 @@ const descriptionInput = document.getElementById("description");
 const createBtn = document.getElementById("createBtn");
 const successPanel = document.getElementById("successPanel");
 const successMessage = document.getElementById("successMessage");
-const loadingIndicator = document.getElementById("loadingIndicator");
-const createLoading = document.getElementById("createLoading");
+const loadingIndicator = document.getElementById("loadingIndicator");    // for initial product loading
+const createLoading = document.getElementById("createLoading");        // for form submit loading
 
-// Timeout helper
-function withTimeout(promise, timeoutMs = 5000) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Request timed out")), timeoutMs)
-    ),
-  ]);
-}
-
-// Loading UI control
-function showLoading() {
-  if (loadingIndicator) loadingIndicator.classList.remove("hidden");
+// Show/hide loading and disable/enable submit button
+function showLoading(msg = "Loading, please wait...") {
+  if (loadingIndicator) {
+    loadingIndicator.textContent = msg;
+    loadingIndicator.classList.remove("hidden");
+  }
 }
 function hideLoading() {
   if (loadingIndicator) loadingIndicator.classList.add("hidden");
@@ -36,17 +29,27 @@ function showCreateLoading() {
 function hideCreateLoading() {
   if (createLoading) createLoading.classList.add("hidden");
 }
+function disableSubmit() {
+  if (createBtn) createBtn.disabled = true;
+}
+function enableSubmit() {
+  if (createBtn) createBtn.disabled = false;
+}
 
-// Load products
+// Load products with loading indicator and artificial delay
 async function loadProducts() {
-  showLoading();
+  showLoading("Loading products...");
   try {
-    const res = await withTimeout(authFetch(PRODUCT_API), 5000);
-    if (!res || !res.ok) throw new Error("Response not OK");
+    const res = await authFetch(PRODUCT_API);
+
+    // Artificial delay so loading message is visible briefly
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    if (!res || !res.ok) throw new Error("Failed to load products");
     const { data } = await res.json();
 
     productSelect.innerHTML = `<option value="">-- Select a Product --</option>`;
-    data.forEach((prod) => {
+    data.forEach(prod => {
       productSelect.innerHTML += `<option value="${prod.productCode}">${prod.name}</option>`;
     });
   } catch (err) {
@@ -57,7 +60,7 @@ async function loadProducts() {
   }
 }
 
-// Submit form
+// Handle form submission with loading states and delay
 createBtn.addEventListener("click", async () => {
   const productCode = productSelect.value;
   const title = titleInput.value.trim();
@@ -68,25 +71,26 @@ createBtn.addEventListener("click", async () => {
     return;
   }
 
+  disableSubmit();
   showCreateLoading();
 
   try {
-    const res = await withTimeout(
-      authFetch(INCIDENT_API, {
-        method: "POST",
-        body: JSON.stringify({ productCode, title, description }),
-      }),
-      5000
-    );
+    const res = await authFetch(INCIDENT_API, {
+      method: "POST",
+      body: JSON.stringify({ productCode, title, description }),
+      headers: { "Content-Type": "application/json" },
+    });
 
-    if (!res) throw new Error("No response");
+    // Artificial delay to keep loading visible for half a second
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     const result = await res.json();
 
     if (res.ok) {
-      successMessage.textContent = `Incident was successfully created.`;
+      successMessage.textContent = "Incident was successfully created.";
       successPanel.classList.remove("hidden");
 
-      // Reset form
+      // Reset form fields
       productSelect.value = "";
       titleInput.value = "";
       descriptionInput.value = "";
@@ -95,13 +99,14 @@ createBtn.addEventListener("click", async () => {
     }
   } catch (err) {
     console.error("Create error:", err);
-    alert(err.message || "An error occurred while creating the incident.");
+    alert("An error occurred while creating the incident.");
   } finally {
     hideCreateLoading();
+    enableSubmit();
   }
 });
 
-// Load products on page load
+// Load products on DOM load
 document.addEventListener("DOMContentLoaded", () => {
   loadProducts();
 });

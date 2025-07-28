@@ -5,6 +5,9 @@ const API_URL = "/api/technicians";
 // DOM elements
 const form = document.getElementById("technicianForm");
 const tbody = document.querySelector("tbody");
+const loadingIndicator = document.getElementById("loadingIndicator");
+const submitLoading = document.getElementById("submitLoading");
+const submitBtn = form?.querySelector('button[type="submit"]');
 
 // Form inputs
 const firstNameInput = document.getElementById("firstName");
@@ -13,11 +16,37 @@ const emailInput = document.getElementById("email");
 const phoneInput = document.getElementById("phone");
 const passwordInput = document.getElementById("password");
 
-// Fetch and display all technicians
+// Utility functions
+function showLoading(msg = "Loading...") {
+  if (loadingIndicator) {
+    loadingIndicator.textContent = msg;
+    loadingIndicator.classList.remove("hidden");
+  }
+}
+function hideLoading() {
+  if (loadingIndicator) loadingIndicator.classList.add("hidden");
+}
+function showSubmitLoading() {
+  if (submitLoading) submitLoading.classList.remove("hidden");
+}
+function hideSubmitLoading() {
+  if (submitLoading) submitLoading.classList.add("hidden");
+}
+function disableSubmit() {
+  if (submitBtn) submitBtn.disabled = true;
+}
+function enableSubmit() {
+  if (submitBtn) submitBtn.disabled = false;
+}
+
+// Fetch and display technicians
 async function fetchTechnicians() {
+  showLoading("Loading technicians...");
   try {
-    const res = await authFetch(API_URL); // uses GET by default
+    const res = await authFetch(API_URL);
     const result = await res.json();
+
+    await new Promise((resolve) => setTimeout(resolve, 400));
 
     if (result.success && Array.isArray(result.data)) {
       renderTable(result.data);
@@ -29,10 +58,12 @@ async function fetchTechnicians() {
     console.error("Error fetching technicians:", err);
     alert("Error fetching technicians: " + err.message);
     tbody.innerHTML = "<tr><td colspan='5'>Error loading data.</td></tr>";
+  } finally {
+    hideLoading();
   }
 }
 
-// Render technician table
+// Render table
 function renderTable(technicians) {
   tbody.innerHTML = "";
   technicians.forEach((tech) => {
@@ -47,13 +78,12 @@ function renderTable(technicians) {
     tbody.appendChild(row);
   });
 
-  // Attach delete button events
   document.querySelectorAll(".btn-danger").forEach((btn) => {
     btn.addEventListener("click", handleDelete);
   });
 }
 
-// Handle form submission to add technician
+// Form submit
 if (form) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -66,19 +96,23 @@ if (form) {
       password: passwordInput.value.trim(),
     };
 
-    if (!technician.firstName || !technician.lastName || !technician.email || !technician.phone || !technician.password) {
+    const isEmpty = Object.values(technician).some((v) => !v);
+    if (isEmpty) {
       alert("Please fill in all fields.");
       return;
     }
 
+    disableSubmit();
+    showSubmitLoading();
+
     try {
       const res = await authFetch(`${API_URL}/addbyadmin`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(technician),
       });
+
+      await new Promise((resolve) => setTimeout(resolve, 400));
 
       const result = await res.json();
 
@@ -92,16 +126,24 @@ if (form) {
     } catch (err) {
       console.error("Add error:", err);
       alert("Add error: " + err.message);
+    } finally {
+      hideSubmitLoading();
+      enableSubmit();
     }
   });
 }
 
-// Handle delete technician
+// Delete handler
 async function handleDelete(e) {
   const id = e.target.dataset.id;
   if (!id) return;
 
   if (confirm(`Delete technician ID ${id}?`)) {
+    const btn = e.target;
+    const originalText = btn.textContent;
+    btn.textContent = "Deleting...";
+    btn.disabled = true;
+
     try {
       const res = await authFetch(`${API_URL}/delete/${id}`, {
         method: "DELETE",
@@ -117,6 +159,9 @@ async function handleDelete(e) {
     } catch (err) {
       console.error("Delete error:", err);
       alert("Delete error: " + err.message);
+    } finally {
+      btn.textContent = originalText;
+      btn.disabled = false;
     }
   }
 }

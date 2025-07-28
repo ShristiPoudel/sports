@@ -1,16 +1,51 @@
 import { authFetch } from "./utils/authFetch.js";
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const productSelect = document.getElementById("product"); // Product select dropdown
-  const customerNameSpan = document.querySelector(".customer-name"); // Display customer name
-  const registerBtn = document.getElementById("registerBtn"); // Register button
-  const successPanel = document.querySelector(".success-panel"); // Success message panel
-  const registrationPanel = document.querySelector(".registration-panel"); // Registration form panel
-  const successMessage = document.getElementById("successMessage"); // Success message text
-  const registerAnotherBtn = document.getElementById("registerAnother"); // Button to register another product
-  const registeredProductsContainer = document.querySelector(".registered-products-container"); // Container for registered products
+// Utility: Delay for smoother UI
+function delay(ms = 500) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-  if (!productSelect || !customerNameSpan || !registerBtn || !registeredProductsContainer) {
+// Utility: Show/Hide loading messages
+function showRegisterLoading(msg = "Loading...") {
+  const indicator = document.getElementById("registerLoadingIndicator");
+  if (indicator) {
+    indicator.textContent = msg;
+    indicator.classList.remove("hidden");
+  }
+}
+function hideRegisterLoading() {
+  const indicator = document.getElementById("registerLoadingIndicator");
+  if (indicator) indicator.classList.add("hidden");
+}
+function showSubmitLoading() {
+  const loading = document.getElementById("submitLoading");
+  if (loading) loading.classList.remove("hidden");
+}
+function hideSubmitLoading() {
+  const loading = document.getElementById("submitLoading");
+  if (loading) loading.classList.add("hidden");
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const productSelect = document.getElementById("productCode");
+  const customerNameSpan = document.querySelector(".customer-name");
+  const registerBtn = document.getElementById("registerBtn");
+  const successPanel = document.querySelector(".success-panel");
+  const registrationPanel = document.querySelector(".registration-panel");
+  const successMessage = document.getElementById("successMessage");
+  const registerAnotherBtn = document.getElementById("registerAnother");
+  const registeredProductsContainer = document.querySelector(".registered-products-container");
+
+  if (
+    !productSelect ||
+    !customerNameSpan ||
+    !registerBtn ||
+    !registeredProductsContainer ||
+    !registrationPanel ||
+    !successPanel ||
+    !successMessage ||
+    !registerAnotherBtn
+  ) {
     console.error("Required elements not found");
     return;
   }
@@ -18,8 +53,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   let customer = null;
 
   try {
-    // 1. Fetch current customer
+    // Show loading while fetching customer and products
+    showRegisterLoading("Fetching customer info...");
+
+    // 1. Fetch current customer info
     const res = await authFetch("/api/customers/me");
+    await delay();
     const data = await res.json();
 
     if (!data.exists) {
@@ -30,7 +69,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     customerNameSpan.textContent = `${customer.firstName} ${customer.lastName}`;
 
     // 2. Load product list
+    showRegisterLoading("Loading products...");
     const productRes = await authFetch("/api/products");
+    await delay();
     const productData = await productRes.json();
 
     if (!productData.success) {
@@ -45,33 +86,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     // 3. Fetch and display the products already registered by the customer
-    const registeredProductsRes = await authFetch(`/api/registrations/${customer.customerID}`);
-    const registeredProductsData = await registeredProductsRes.json();
-
-    if (registeredProductsRes.ok && registeredProductsData.success) {
-      const registeredProducts = registeredProductsData.data;
-
-      // Display registered products as simple text
-      if (registeredProducts.length === 0) {
-        registeredProductsContainer.innerHTML = "<p>No products are registered yet.</p>";
-      } else {
-        let productText = '';
-        registeredProducts.forEach((product) => {
-          productText += `<p>${product.name} - Version: ${product.version}</p>`;
-        });
-
-        registeredProductsContainer.innerHTML = productText;
-      }
-    }
-
+    await loadRegisteredProducts(customer.customerID);
   } catch (err) {
     console.error("Initialization failed:", err);
     alert("Initialization failed: " + err.message);
     return;
+  } finally {
+    hideRegisterLoading();
   }
 
   // 4. Register button click
-  registerBtn.addEventListener("click", async () => {
+  registerBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
     const productCode = productSelect.value;
 
     if (!productCode) {
@@ -84,6 +110,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       productCode,
     };
 
+    registerBtn.disabled = true;
+    showSubmitLoading();
+
     try {
       const res = await authFetch("/api/registrations", {
         method: "POST",
@@ -91,38 +120,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         body: JSON.stringify(body),
       });
 
+      await delay();
       const result = await res.json();
 
-      if (res.ok) {
+      if (res.ok && result.success) {
         successMessage.textContent = "Product registered successfully!";
         registrationPanel.classList.add("hidden");
         successPanel.classList.remove("hidden");
 
-        // Refresh the list of registered products
-        const registeredProductsRes = await authFetch(`/api/registrations/${customer.customerID}`);
-        const registeredProductsData = await registeredProductsRes.json();
-
-        if (registeredProductsRes.ok && registeredProductsData.success) {
-          const registeredProducts = registeredProductsData.data;
-
-          // Display registered products as simple text
-          if (registeredProducts.length === 0) {
-            registeredProductsContainer.innerHTML = "<p>No products are registered yet.</p>";
-          } else {
-            let productText = '';
-            registeredProducts.forEach((product) => {
-              productText += `<p>${product.name} - Version: ${product.version}</p>`;
-            });
-
-            registeredProductsContainer.innerHTML = productText;
-          }
-        }
+        await loadRegisteredProducts(customer.customerID);
       } else {
         alert(result.message || "Product registration failed.");
       }
     } catch (err) {
       console.error("Registration error:", err);
       alert("Failed to register product. Try again.");
+    } finally {
+      registerBtn.disabled = false;
+      hideSubmitLoading();
     }
   });
 
@@ -132,4 +147,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     registrationPanel.classList.remove("hidden");
     successPanel.classList.add("hidden");
   });
+
+  // Helper to load and display registered products
+  async function loadRegisteredProducts(customerID) {
+    try {
+      showRegisterLoading("Loading your registered products...");
+      const res = await authFetch(`/api/registrations/${customerID}`);
+      await delay();
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        const products = data.data;
+
+        if (!products.length) {
+          registeredProductsContainer.innerHTML = "<p>No products are registered yet.</p>";
+        } else {
+          registeredProductsContainer.innerHTML = products
+            .map(
+              (product) => `<p>${product.name} - Version: ${product.version}</p>`
+            )
+            .join("");
+        }
+      } else {
+        registeredProductsContainer.innerHTML =
+          "<p>Could not load registered products.</p>";
+      }
+    } catch (err) {
+      console.error("Error loading registered products:", err);
+      registeredProductsContainer.innerHTML =
+        "<p>Error loading registered products.</p>";
+    } finally {
+      hideRegisterLoading();
+    }
+  }
 });

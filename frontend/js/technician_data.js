@@ -4,37 +4,74 @@ document.addEventListener("DOMContentLoaded", async () => {
   const userID = localStorage.getItem("userID");
   const role = localStorage.getItem("userRole");
 
-  // Redirect if not logged in or not a technician
+  const loadingIndicator = document.getElementById("loadingIndicator");
+  const submitLoading = document.getElementById("submitLoading");
+  const technicianForm = document.getElementById("technicianForm");
+  const submitBtn = technicianForm?.querySelector('button[type="submit"]');
+
+  // Utility functions
+  function showLoading(msg = "Loading, please wait...") {
+    if (loadingIndicator) {
+      loadingIndicator.textContent = msg;
+      loadingIndicator.classList.remove("hidden");
+    }
+  }
+
+  function hideLoading() {
+    if (loadingIndicator) loadingIndicator.classList.add("hidden");
+  }
+
+  function showSubmitLoading() {
+    if (submitLoading) submitLoading.classList.remove("hidden");
+  }
+
+  function hideSubmitLoading() {
+    if (submitLoading) submitLoading.classList.add("hidden");
+  }
+
+  function disableSubmit() {
+    if (submitBtn) submitBtn.disabled = true;
+  }
+
+  function enableSubmit() {
+    if (submitBtn) submitBtn.disabled = false;
+  }
+
+  // Check role
   if (!userID || role !== "technician") {
     window.location.href = "login_users.html";
     return;
   }
 
+  // Check if technician profile already exists
+  showLoading("Verifying your profile...");
   try {
-    // Check if technician profile already exists
     const res = await authFetch("/api/technicians/me");
 
+    await new Promise(resolve => setTimeout(resolve, 500)); // delay for UX
+
+    hideLoading();
+
     if (res.ok) {
-      // Technician profile exists — redirect to homepage/dashboard
+      // Already exists, redirect
       window.location.href = "index.html";
       return;
     } else if (res.status !== 404) {
-      // Unexpected error (other than Not Found)
-      throw new Error(`Unexpected response status: ${res.status}`);
+      throw new Error(`Unexpected status: ${res.status}`);
     }
-    // If 404, allow form to be filled
   } catch (err) {
+    hideLoading();
     console.error("Error checking technician profile:", err);
     alert("Error verifying your profile. Please try again later.");
     return;
   }
 
-  const technicianForm = document.getElementById("technicianForm");
   if (!technicianForm) {
     console.error("Technician form not found");
     return;
   }
 
+  // Submit new technician data
   technicianForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -45,12 +82,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       phone: document.getElementById("phone").value.trim(),
     };
 
+    disableSubmit();
+    showSubmitLoading();
+
     try {
       const res = await authFetch("/api/technicians/add", {
         method: "POST",
-        headers: { "Content-Type": "application/json" }, 
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+
+      await new Promise(resolve => setTimeout(resolve, 500)); // simulate processing delay
 
       let result;
       try {
@@ -69,6 +111,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (err) {
       console.error("Network or JS error:", err);
       alert("Error submitting form. Please try again.");
+    } finally {
+      hideSubmitLoading();
+      enableSubmit();
     }
   });
 });

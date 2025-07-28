@@ -1,89 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Manage Technicians - SportsPro Technical Support</title>
-  <link rel="stylesheet" href="css/main.css" />
-</head>
-<body>
-  <!-- Header -->
-  <header class="header">
-    <div class="container">
-      <h1>SportsPro Technical Support</h1>
-      <p>Sports management software for the sports enthusiast</p>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="container">
-    <div class="main-panel">
-      <div class="header-section">
-        <h2>Technician List</h2>
-        <a href="index.html">Home</a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Technicians - SportsPro Technical Support</title>
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <h1>SportsPro Technical Support</h1>
+        <p>Sports management software for the sports enthusiast</p>
       </div>
+    </header>
 
-      <!-- Technicians Table -->
-      <div class="table-container mb-4">
-        <table>
-          <thead>
-            <tr>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Dynamic content will be rendered by technicians.js -->
-          </tbody>
-        </table>
+    <!-- Main Content -->
+    <main class="container">
+      <div class="main-panel">
+        <div class="header-section">
+          <h2>Technician List</h2>
+          <a href="index.html">Home</a>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="loading-indicator hidden">
+          Loading technicians...
+        </div>
+
+        <!-- Technicians Table -->
+        <div class="table-container mb-4">
+          <table>
+            <thead>
+              <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Dynamic content will be rendered by technicians.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Add Technician Form -->
+        <div class="form-panel">
+          <h3>Add Technician</h3>
+          <form id="technicianForm">
+            <div class="form-group">
+              <label for="firstName">First Name:</label>
+              <input type="text" id="firstName" name="firstName" required />
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Last Name:</label>
+              <input type="text" id="lastName" name="lastName" required />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone:</label>
+              <input type="tel" id="phone" name="phone" required />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password:</label>
+              <input type="password" id="password" name="password" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              Add Technician
+            </button>
+            <div id="submitLoading" class="hidden">
+              Submitting, please wait...
+            </div>
+          </form>
+        </div>
       </div>
+    </main>
 
-      <!-- Add Technician Form -->
-      <div class="form-panel">
-        <h3>Add Technician</h3>
-        <form id="technicianForm">
-          <div class="form-group">
-            <label for="firstName">First Name:</label>
-            <input type="text" id="firstName" name="firstName" required />
-          </div>
-
-          <div class="form-group">
-            <label for="lastName">Last Name:</label>
-            <input type="text" id="lastName" name="lastName" required />
-          </div>
-
-          <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required />
-          </div>
-
-          <div class="form-group">
-            <label for="phone">Phone:</label>
-            <input type="tel" id="phone" name="phone" required />
-          </div>
-
-          <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required />
-          </div>
-
-          <button type="submit" class="btn btn-primary">Add Technician</button>
-        </form>
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <p>&copy; 2025 SportsPro, Inc.</p>
       </div>
-    </div>
-  </main>
+    </footer>
 
-  <!-- Footer -->
-  <footer>
-    <div class="container">
-      <p>&copy; 2025 SportsPro, Inc.</p>
-    </div>
-  </footer>
-
-  <!-- JS file -->
-  <script type="module" src="js/technicians.js"></script>
-</body>
+    <!-- JS file -->
+    <script type="module" src="js/technicians.js"></script>
+  </body>
 </html>

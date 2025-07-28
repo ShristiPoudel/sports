@@ -211,6 +211,8 @@ export default class CustomerController {
   
       // Delete associated user
       await User.destroy({ where: { userID } });
+
+      
   
       return res.json({
         success: true,

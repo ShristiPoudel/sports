@@ -26,6 +26,8 @@
             <!-- Assigned Incidents List -->
             <div class="incidents-panel mb-4">
                 <h3>Your Assigned Incidents</h3>
+                <div id="loadingIndicator" class="loading-indicator hidden">Loading incidents...</div>
+
                 <div class="table-container">
                     <table>
                         <thead>
@@ -71,6 +73,8 @@
                     <button class="btn btn-primary">Update Incident</button>
                     <button class="btn btn-secondary">Cancel</button>
                 </div>
+                <div id="submitLoading" class="hidden">Updating, please wait...</div>
+
             </div>
             
             <!-- Confirmation Message (Initially hidden - shown after update) -->

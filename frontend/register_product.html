@@ -1,66 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Register Product - SportsPro Technical Support</title>
-    <link rel="stylesheet" href="css/main.css">
-</head>
-<body>
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
     <!-- Header -->
     <header class="header">
-        <div class="container">
-            <h1>SportsPro Technical Support</h1>
-            <p>Sports management software for the sports enthusiast</p>
-        </div>
+      <div class="container">
+        <h1>SportsPro Technical Support</h1>
+        <p>Sports management software for the sports enthusiast</p>
+      </div>
     </header>
-    
+
     <!-- Main Content -->
     <main class="container">
-        <div class="main-panel small-panel">
-            <!-- Registration Form -->
-            <div class="registration-panel mb-4 ">
-                <h3>Register Product</h3>
-                <div class="customer-info mb-2">
-                    <p>Customer: <span class="customer-name"></span></p>
-                </div>
+      <div class="main-panel small-panel">
+        <!-- Registration Form -->
+        <div class="registration-panel mb-4">
+          <h3>Register Product</h3>
+          <div class="customer-info mb-2">
+            <p>Customer: <span class="customer-name"></span></p>
+          </div>
 
-                <!-- Registered Products -->
-                <h3>Your Registered Products</h3>
-                <div class="registered-products-container mb-4">
-                    <!-- Registered products will be dynamically added here -->
-                </div>
+          <div id="registerLoadingIndicator" class="loading-indicator hidden">
+            Loading...
+          </div>
 
-                <div class="form-group">
-                    <label for="product">Product:</label>
-                    <select id="product" name="product">
-                        <option value="">-- Select a Product --</option>
-                        <!-- option will be added dynamically -->
-                    </select>
-                </div>
-                <button id="registerBtn" class="btn btn-primary full-width">Register Product</button>
+          <!-- Registered Products -->
+          <h3>Your Registered Products</h3>
+          <div class="registered-products-container mb-4">
+            <!-- Registered products will be dynamically added here -->
+          </div>
+
+          <form id="registrationForm">
+            <select id="customerID" name="customerID" hidden></select>
+
+            <div class="form-group">
+              <label for="productCode">Product:</label>
+              <select id="productCode" name="productCode" required>
+                <option value="">-- Select a Product --</option>
+              </select>
             </div>
-
-            
-            <!-- Confirmation Message (Initially hidden - shown after registration) -->
-            <div class="success-panel hidden">
-                <div class="alert alert-success">
-                    <p id="successMessage"></p>
-                </div>
-                <button id="registerAnother" class="btn btn-primary full-width">Register Another Product</button>
-            </div>
+            <button id="registerBtn" class="btn btn-primary full-width" type="submit">
+              Register Product
+            </button>
+            <div id="submitLoading" class="loading-indicator hidden">Registering product...</div>
+          </form>
         </div>
+
+        <!-- Confirmation Message (Initially hidden - shown after registration) -->
+        <div class="success-panel hidden">
+          <div class="alert alert-success">
+            <p id="successMessage"></p>
+          </div>
+          <button id="registerAnother" class="btn btn-primary full-width">
+            Register Another Product
+          </button>
+        </div>
+      </div>
     </main>
-    
+
     <!-- Footer -->
     <footer>
-        <div class="container">
-            <p>&copy; 2025 SportsPro, Inc.</p>
-        </div>
+      <div class="container">
+        <p>&copy; 2025 SportsPro, Inc.</p>
+      </div>
     </footer>
 
     <!-- js file -->
     <script type="module" src="js/register_product.js"></script>
-
-</body>
+  </body>
 </html>
