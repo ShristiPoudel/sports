@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   try {
     const res = await authFetch('/api/profile');
-    await delay(500); // UX delay
+    await delay(500); 
 
     if (!res || !res.ok) throw new Error('Unable to fetch profile.');
 
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     } else if (profile.role === 'technician' && profile.techID) {
       const technicianRes = await authFetch(`/api/technicians/${profile.techID}`);
-      await delay(500); // UX delay
+      await delay(500); 
 
       if (technicianRes.ok) {
         const technicianData = (await technicianRes.json()).data;

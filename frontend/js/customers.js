@@ -21,7 +21,7 @@ const stateInput = document.getElementById("addState");
 const postalCodeInput = document.getElementById("addPostalCode");
 const countryInput = document.getElementById("addCountry");
 
-// Utility functions for loading state
+ //  functions to show/hide loading state
 function showLoading(msg = "Loading, please wait...") {
   if (loadingIndicator) {
     loadingIndicator.textContent = msg;

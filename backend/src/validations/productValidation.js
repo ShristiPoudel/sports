@@ -1,5 +1,6 @@
 import { body } from "express-validator";
 
+//validation for product creation and update
 export const createProductValidation = [
   body("productCode")
     .notEmpty()

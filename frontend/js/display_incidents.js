@@ -1,5 +1,6 @@
 import { authFetch } from "./utils/authFetch.js";
 
+//API end points
 const INCIDENTS_API = "/api/incidents";
 const TECH_API = "/api/technicians";
 const CUST_API = "/api/customers";

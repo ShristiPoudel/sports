@@ -39,8 +39,6 @@ app.use((err, req, res, next) => {
     });
   });
 
-
-
 //routes
 app.use("/api/products", productRoute);
 app.use("/api/technicians", technicianRoute);
@@ -53,12 +51,9 @@ app.use("/api/users", userRoute)
 app.use("/api/profile", profileRoute);
 
 
-
-
 app.get("/",(req,res)=>{
     res.send("Backend is working");
 })
-
 
 app.listen(port, async()=>{
     console.log(`Server has started on ${port}`);

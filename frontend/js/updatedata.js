@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load country list
   try {
     const countryRes = await authFetch('/api/countries');
-    await delay(300); // Simulated delay for UX
+    await delay(300); 
 
     if (!countryRes.ok) throw new Error('Failed to fetch countries');
 
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       technicianSection.style.display = 'block';
 
       const res = await authFetch('/api/technicians/me');
-      await delay(500); // Simulated delay for UX
+      await delay(500); 
 
       if (!res.ok) throw new Error('Failed to fetch technician data');
 

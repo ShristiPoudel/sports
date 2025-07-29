@@ -1,5 +1,6 @@
 import { authFetch } from "./utils/authFetch.js";
 
+//API end points
 const INCIDENTS_API = "/api/incidents";
 const tbody = document.getElementById("incidentsTableBody");
 const loadingIndicator = document.getElementById("loadingIndicator");

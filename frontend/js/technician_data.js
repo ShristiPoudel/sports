@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const res = await authFetch("/api/technicians/me");
 
-    await new Promise(resolve => setTimeout(resolve, 500)); // delay for UX
+    await new Promise(resolve => setTimeout(resolve, 500)); 
 
     hideLoading();
 
@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         body: JSON.stringify(formData),
       });
 
-      await new Promise(resolve => setTimeout(resolve, 500)); // simulate processing delay
+      await new Promise(resolve => setTimeout(resolve, 500)); 
 
       let result;
       try {

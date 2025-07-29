@@ -30,7 +30,7 @@ loginBtn.addEventListener('click', async () => {
       body: JSON.stringify({ email, password }),
     });
 
-    // 500ms delay before parsing response
+    
     await sleep(500);
 
     const result = await res.json();
@@ -48,7 +48,6 @@ loginBtn.addEventListener('click', async () => {
     localStorage.setItem('userRole', user.role);
     localStorage.setItem('userID', user.id);
 
-    // 500ms delay before redirect/profile fetch
     await sleep(500);
 
     // Redirect based on role

@@ -1,5 +1,6 @@
 import { body } from "express-validator";
 
+// validation to create country code and name
 export const createCountryValidation = [
   body("countryCode")
     .notEmpty()

@@ -1,5 +1,5 @@
 import { body } from "express-validator";
-
+// validation for technician create and update 
 export const createTechnicianValidation = [
   body("userID")
     .isInt({ min: 1 })

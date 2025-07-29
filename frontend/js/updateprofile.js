@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   showLoading("Loading profile...");
   try {
     const res = await authFetch('/api/profile');
-    await delay(500); // Simulated delay
+    await delay(500); 
 
     if (!res || !res.ok) throw new Error("Failed to fetch user data");
 
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-      await delay(500); // Simulate backend delay
+      await delay(500); 
 
       const res = await authFetch('/api/profile', {
         method: 'PUT',
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       if (res.ok && result.success) {
         alert("Profile updated successfully.");
-        passwordInput.value = ''; // Clear password field
+        passwordInput.value = ''; 
       } else {
         alert(result.message || "Failed to update profile.");
       }

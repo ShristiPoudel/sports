@@ -15,12 +15,11 @@ if (role !== "admin" && actionHeader) {
   actionHeader.style.display = "none";
 }
 
-// Utility delay function (500ms)
 function delay(ms = 500) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Show main loading indicator with optional message
+// loading indicator with optional message
 function showLoading(message = "Loading products...") {
   if (loadingIndicator) {
     loadingIndicator.textContent = message;
@@ -115,7 +114,7 @@ function renderProducts(products) {
         </td>
       `;
     } else {
-      rowHTML += `<td style="display:none;"></td>`; // Empty cell, hidden
+      rowHTML += `<td style="display:none;"></td>`; 
     }
 
     row.innerHTML = rowHTML;

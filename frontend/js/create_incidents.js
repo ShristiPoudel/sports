@@ -1,5 +1,6 @@
 import { authFetch } from "./utils/authFetch.js";
 
+//API end points
 const INCIDENT_API = "/api/incidents";
 const PRODUCT_API = "/api/products";
 
@@ -10,10 +11,10 @@ const descriptionInput = document.getElementById("description");
 const createBtn = document.getElementById("createBtn");
 const successPanel = document.getElementById("successPanel");
 const successMessage = document.getElementById("successMessage");
-const loadingIndicator = document.getElementById("loadingIndicator");    // for initial product loading
-const createLoading = document.getElementById("createLoading");        // for form submit loading
+const loadingIndicator = document.getElementById("loadingIndicator");    
+const createLoading = document.getElementById("createLoading");      
 
-// Show/hide loading and disable/enable submit button
+ //  functions to show/hide loading state
 function showLoading(msg = "Loading, please wait...") {
   if (loadingIndicator) {
     loadingIndicator.textContent = msg;
@@ -42,7 +43,7 @@ async function loadProducts() {
   try {
     const res = await authFetch(PRODUCT_API);
 
-    // Artificial delay so loading message is visible briefly
+   
     await new Promise(resolve => setTimeout(resolve, 500));
 
     if (!res || !res.ok) throw new Error("Failed to load products");
@@ -81,7 +82,7 @@ createBtn.addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
     });
 
-    // Artificial delay to keep loading visible for half a second
+    // Artificial delay 
     await new Promise(resolve => setTimeout(resolve, 500));
 
     const result = await res.json();
@@ -106,7 +107,7 @@ createBtn.addEventListener("click", async () => {
   }
 });
 
-// Load products on DOM load
+// Load products 
 document.addEventListener("DOMContentLoaded", () => {
   loadProducts();
 });

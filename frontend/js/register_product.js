@@ -1,11 +1,10 @@
 import { authFetch } from "./utils/authFetch.js";
-
-// Utility: Delay for smoother UI
+//Delat
 function delay(ms = 500) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Utility: Show/Hide loading messages
+// function to Show/Hide loading messages
 function showRegisterLoading(msg = "Loading...") {
   const indicator = document.getElementById("registerLoadingIndicator");
   if (indicator) {
