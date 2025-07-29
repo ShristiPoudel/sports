@@ -12,7 +12,7 @@ import {
 const router = Router();
 const controller = new IncidentController();
 
-//get incidents
+
 router.get(
   "/",
   verifyToken,
@@ -20,12 +20,12 @@ router.get(
   (req, res,next ) => controller.getAllIncidents(req, res,next)
 );
 
-// GET /api/incidents/assigned - Technician's assigned incidents
+
 router.get("/assigned", verifyToken, authorizeRoles("technician"), (req, res,next) =>
   controller.getAssignedIncidents(req, res,next)
 );
 
-//get incident by id
+
 router.get(
   "/:id",
   verifyToken,
@@ -33,7 +33,7 @@ router.get(
   (req, res,next) => controller.getIncidentById(req, res,next)
 );
 
-//post incident
+
 router.post(
   "/",
   verifyToken,
@@ -43,7 +43,7 @@ router.post(
   (req, res,next) => controller.createIncident(req, res,next)
 );
 
-//assign technician
+
 router.put(
   "/:id/assign",
   verifyToken,
@@ -53,7 +53,6 @@ router.put(
   (req, res,next) => controller.assignTechnician(req, res,next)
 );
 
-// PUT update incident details (description, close)
 router.put(
   "/:id",
   verifyToken,

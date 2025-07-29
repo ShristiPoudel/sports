@@ -1,7 +1,8 @@
 import { Customer, Product, Registration } from '../models/index.js';
 
 export default class RegistrationController {
-  // Get all products registered by a customer
+
+// GET /api/registrations/:customerId - Get all products registered by a customer
   async getRegistrationsByCustomer(req, res, next) {
     const { customerId } = req.params;
 
@@ -23,7 +24,7 @@ export default class RegistrationController {
     }
   }
 
-  // Register a product for a customer
+  // // POST /api/registrations - Register a product for a customer
   async registerProduct(req, res, next) {
     const { customerID, productCode } = req.body;
 

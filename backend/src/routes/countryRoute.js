@@ -7,11 +7,9 @@ import validateRequest from '../middlewares/validateRequest.js';
 
 const router = Router();
 const countryController = new CountryController();
-
-// GET /api/countries - fetch all
+ 
 router.get('/', (req, res,next) =>  countryController.getAllCountries(req, res,next));
 
-// POST /api/countries - create new-create new (protected: admin only)
 router.post('/add', 
     verifyToken,
     authorizeRoles("admin"),

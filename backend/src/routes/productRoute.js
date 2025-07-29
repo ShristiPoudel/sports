@@ -11,7 +11,6 @@ import validateRequest from "../middlewares/validateRequest.js";
 const router = Router();
 const productController = new ProductController();
 
-// Public: anyone can view products
 router.get("/", (req, res,next) => {
   productController.getAllProducts(req, res,next);
 });
@@ -20,7 +19,6 @@ router.get("/:productCode", (req, res,next) => {
   productController.getProductByCode(req, res,next);
 });
 
-// Protected: only admin can add/update/delete
 router.post(
   "/add",
   verifyToken,

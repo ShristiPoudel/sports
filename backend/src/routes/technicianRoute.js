@@ -10,9 +10,7 @@ const router = Router();
 
 const technicianController = new TechnicianController();
 
-// View: admin and technician
 
-//get all technicians
 router.get("/",
   verifyToken,
   authorizeRoles("admin"),
@@ -20,18 +18,18 @@ router.get("/",
   technicianController.getAllTechnicians(req, res, next);
 });
 
-// GET /api/technicians/me - Get logged-in technician's profile
+
 router.get(
   "/me",
   verifyToken,
-  authorizeRoles("technician", "admin"), // admin can also check their own technician profile if needed
+  authorizeRoles("technician", "admin"), 
   (req, res, next) => {
     technicianController.getMyTechnicianData(req, res, next);
   }
 );
 
 
-//get technician by id
+
 router.get("/:techID",
   verifyToken,
   authorizeRoles("admin", "technician"), (req, res, next) => {
@@ -39,7 +37,7 @@ router.get("/:techID",
 });
 
 
-// POST /product/add - add technician data
+
 router.post("/add",
   verifyToken,
   authorizeRoles("admin","technician"),
@@ -50,7 +48,7 @@ router.post("/add",
 });
 
 
-//update technician by id
+
 router.put("/update/:techID",
   verifyToken,
   authorizeRoles("admin","technician"),
@@ -60,7 +58,7 @@ router.put("/update/:techID",
   technicianController.updateTechnician(req,res, next);
 });
 
-//delete technician by id
+
 router.delete("/delete/:techID",
   verifyToken,
   authorizeRoles("admin"),
@@ -68,7 +66,7 @@ router.delete("/delete/:techID",
   technicianController.deleteTechnician(req,res, next);
 });
 
-// Add technician by admin
+
 router.post(
   "/addbyadmin",
   verifyToken,

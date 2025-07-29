@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { Op } from "sequelize";
 
 export default class CustomerController {
-  //get all customers
+  // GET api/customers/ - get all customers
   async getAllCustomers(req, res, next) {
     try {
       const data = await Customer.findAll({
@@ -12,14 +12,14 @@ export default class CustomerController {
           attributes: ["email"],
         },
       });
-  
+
       res.json({ success: true, data });
     } catch (err) {
       next(err);
     }
   }
 
-  // get the logged in customer data
+  // GET  api/customers/me -get the logged in customer data
   async getMyCustomerData(req, res, next) {
     try {
       const customer = await Customer.findOne({
@@ -38,7 +38,7 @@ export default class CustomerController {
     }
   }
 
-  // Add a new customer
+  // POST api/customers/add - Add a new customer
   async addCustomer(req, res, next) {
     // Authorization check
     if (req.user.role !== "admin" && req.user.id !== req.body.userID) {
@@ -74,7 +74,7 @@ export default class CustomerController {
     }
   }
 
-  //get customer by their id
+  // GET api/customers/:customerID -get customer by their id
   async getCustomerById(req, res, next) {
     const { customerID } = req.params;
 
@@ -106,7 +106,7 @@ export default class CustomerController {
     }
   }
 
-  //update customer by their id
+  //PUT /update/:customerID -update customer by their id
 
   async updateCustomer(req, res, next) {
     const { customerID } = req.params;
@@ -149,7 +149,7 @@ export default class CustomerController {
     }
   }
 
-  // search customer by last name
+  //GET api/customers/search/lastName - search customer by last name
   async searchByLastName(req, res, next) {
     const { lastName } = req.query;
 
@@ -182,38 +182,35 @@ export default class CustomerController {
     }
   }
 
-  // delete customer data
+  //DELETE api/customers/delete/:customerID -delete customer data
   async deleteCustomer(req, res, next) {
     const { customerID } = req.params;
-  
+
     if (!customerID) {
       return res.status(400).json({
         success: false,
         message: "Customer ID is required",
       });
     }
-  
+
     try {
-      // Fetch the customer
       const customer = await Customer.findByPk(customerID);
-  
+
       if (!customer) {
         return res.status(404).json({
           success: false,
           message: "Customer not found",
         });
       }
-  
+
       const userID = customer.userID;
-  
+
       // Delete customer
       await Customer.destroy({ where: { customerID } });
-  
+
       // Delete associated user
       await User.destroy({ where: { userID } });
 
-      
-  
       return res.json({
         success: true,
         message: "Customer and user account deleted successfully",
@@ -222,7 +219,8 @@ export default class CustomerController {
       next(err);
     }
   }
-  
+
+  //POST api/customers/addbyadmin - add customer by admin
   async addCustomerByAdmin(req, res, next) {
     try {
       const {

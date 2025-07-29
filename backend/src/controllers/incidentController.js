@@ -1,7 +1,7 @@
 import { Incident, Customer, Product, Technician } from "../models/index.js";
 
 export default class IncidentController {
-  // Get all incidents
+  //GET api/incidents/ -  Get all incidents
   async getAllIncidents(req, res, next) {
     try {
       const incidents = await Incident.findAll({
@@ -13,7 +13,7 @@ export default class IncidentController {
     }
   }
 
-  // Get specific incident by ID
+  // GET /api/incidents/:id -Get specific incident by ID
   async getIncidentById(req, res, next) {
     const { id } = req.params;
 
@@ -34,10 +34,10 @@ export default class IncidentController {
     }
   }
 
-  // Create new incident (reporting)
+  //POST api/incidents/  Create new incident 
   async createIncident(req, res, next) {
     const { productCode, dateOpened, title, description } = req.body;
-    const userID = req.user.id; // from JWT / auth middleware
+    const userID = req.user.id; 
   
     if (!productCode || !title || !description) {
       return res
@@ -46,7 +46,7 @@ export default class IncidentController {
     }
   
     try {
-      // Find customer by logged-in userID
+     
       const customer = await Customer.findOne({ where: { userID } });
   
       if (!customer) {
@@ -73,7 +73,7 @@ export default class IncidentController {
   }
   
 
-  // Assign incident to technician
+  //PUT api/incidents//:id/assign - Assign incident to technician
   async assignTechnician(req, res, next) {
     const { id } = req.params;
     const { techID } = req.body;
@@ -101,7 +101,7 @@ export default class IncidentController {
   }
 
 
- // Update incident description and optionally close
+ //PUT api/incidents/:id -  Update incident description and optionally close
 async updateIncident(req, res, next) {
   const { id } = req.params;
   const { description, dateClosed } = req.body;
@@ -150,12 +150,12 @@ async updateIncident(req, res, next) {
 
 
 
-// Get incidents assigned to the logged-in technician
+// GET /api/incidents/assigned - Technician's assigned incidents
 async getAssignedIncidents(req, res, next) {
-  const { id } = req.user; // userID from JWT
+  const { id } = req.user; 
 
   try {
-    // Get technician using userID (from logged-in user)
+    
     const technician = await Technician.findOne({ where: { userID: id } });
 
     if (!technician) {
@@ -164,7 +164,7 @@ async getAssignedIncidents(req, res, next) {
         .json({ success: false, message: "Technician not found" });
     }
 
-    // Find all incidents assigned to this technician's techID
+    
     const incidents = await Incident.findAll({
       where: { techID: technician.techID },
       include: [Customer, Product, Technician],

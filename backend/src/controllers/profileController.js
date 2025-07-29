@@ -1,4 +1,4 @@
-// controllers/profileController.js
+
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs"; 
 import Customer from "../models/customerModel.js";
@@ -6,7 +6,7 @@ import Technician from "../models/technicianModel.js";
 
 
 export default class ProfileController {
-  // GET /api/profile
+  // GET /api/profile - Get own profile (Any authenticated user)
   async getProfile(req, res, next) {
     try {
       const user = await User.findByPk(req.user.id, {
@@ -45,7 +45,7 @@ export default class ProfileController {
     }
   }
   
-  // PUT /api/profile
+  // PUT /api/profile  - Update own profile (Any authenticated user)
   async updateProfile(req, res,next) {
     try {
       const { username, email, password } = req.body;

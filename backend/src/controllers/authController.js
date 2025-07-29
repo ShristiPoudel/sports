@@ -1,15 +1,16 @@
-// controllers/authController.js
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import "dotenv/config";
 import { generateAccessToken, generateRefreshToken } from "../utils/generateToken.js";
-import UserToken from "../models/userTokenModel.js"; // adjust path if needed
+import UserToken from "../models/userTokenModel.js";
 
 
 const JWT_SEC = process.env.JWT_SECRET;
 
 export default class AuthController {
+
+// Post api/auth/register - Register  user
   async register(req, res,next) {
    
     try {
@@ -50,6 +51,7 @@ export default class AuthController {
     }
   }
 
+  // Post api/auth/login - login user
   async login(req, res, next) {
    
     try {
@@ -91,6 +93,7 @@ export default class AuthController {
     }
   }
 
+  // post api/auth/Refresh - get new accessToken
   async refreshAccessToken(req,res, next){
     const { refreshToken } = req.body;
 
@@ -120,6 +123,7 @@ export default class AuthController {
 
 }
 
+// Post api/auth - Logout
 async logout(req, res, next) {
   const { refreshToken } = req.body;
 
@@ -138,10 +142,6 @@ async logout(req, res, next) {
     next(err); 
   }
 }
-
-
-
-
 
 }
 

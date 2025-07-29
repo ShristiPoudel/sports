@@ -1,7 +1,8 @@
 import { Product } from "../models/index.js";
 
 export default class ProductController {
-  //add product
+  
+  //POST api/products/add -add product
   async addProduct(req, res,next) {
     try {
       const data = await Product.create(req.body);
@@ -12,7 +13,7 @@ export default class ProductController {
     }
   }
 
-  // Get all products
+  //GET - api/products/ -  Get all products
   async getAllProducts(req, res, next) {
     try {
       const products = await Product.findAll();
@@ -22,7 +23,7 @@ export default class ProductController {
     }
   }
 
-  //get product by their code
+  //GET api/products/:productCode -get product by their code
   async getProductByCode(req, res , next) {
     const { productCode } = req.params;
 
@@ -47,8 +48,7 @@ export default class ProductController {
     }
   }
 
-  //update product by their code
-
+  //PUT api/products/update/:productCode -update product by their code
   async updateProduct(req, res, next) {
     const { productCode } = req.params;
 
@@ -76,7 +76,7 @@ export default class ProductController {
     
   }
 
-  // delete product by their code
+  //DELETE api/products/delete/:productCode - delete product by their code
   async deleteProduct(req, res, next) {
     const { productCode } = req.params;
 

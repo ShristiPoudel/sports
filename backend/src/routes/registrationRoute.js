@@ -8,14 +8,12 @@ import validateRequest from '../middlewares/validateRequest.js';
 const router = Router();
 const registrationController = new RegistrationController();
 
-
-// GET /api/registrations/:customerId
 router.get('/:customerId',
     verifyToken,
     authorizeRoles('admin', 'customer'),
      (req, res, next) => registrationController.getRegistrationsByCustomer(req, res, next));
 
-// POST /api/registrations
+
 router.post('/', 
     verifyToken,
     authorizeRoles('admin', 'customer'),

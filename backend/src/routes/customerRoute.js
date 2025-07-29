@@ -10,7 +10,6 @@ const router = Router();
 
 const customerController = new CustomerController();
 
-//Get all customer
 router.get("/", 
   verifyToken,
   authorizeRoles("admin"),
@@ -18,14 +17,13 @@ router.get("/",
   customerController.getAllCustomers(req, res, next);
 });
 
-//  Get own customer data
 router.get("/me",
   verifyToken,
-  authorizeRoles("customer", "admin"), // allow both
+  authorizeRoles("customer", "admin"), 
   (req, res, next) => customerController.getMyCustomerData(req, res, next)
 );
 
-//get a specific customer
+
 router.get("/:customerID",
   verifyToken,
   authorizeRoles("admin","customer"),
@@ -34,7 +32,7 @@ router.get("/:customerID",
 });
 
 
-//add customer data
+
 router.post("/add",
   verifyToken,
   authorizeRoles("admin", "customer"),
@@ -44,7 +42,6 @@ router.post("/add",
   customerController.addCustomer(req, res, next);
 });
 
-//update customer
 router.put("/update/:customerID",
   verifyToken,
   authorizeRoles("admin","customer"),
@@ -54,7 +51,7 @@ router.put("/update/:customerID",
   customerController.updateCustomer(req, res, next);
 });
 
-// DELETE customer
+
 router.delete("/delete/:customerID", 
   verifyToken,
   authorizeRoles("admin"),
@@ -62,7 +59,6 @@ router.delete("/delete/:customerID",
   customerController.deleteCustomer(req, res, next);
 });
 
-//  allow searching by lastName for admin 
 router.get(
   "/search/lastName",
   verifyToken,

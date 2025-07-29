@@ -2,13 +2,13 @@ import { Technician,User} from "../models/index.js";
 import bcrypt from "bcryptjs";
 
 export default class TechnicianController {
-  // GET all technicians
+  // GET api/technicians/ -get all technicians
   async getAllTechnicians(req, res, next) {
     try {
       const data = await Technician.findAll({
         include: [{
           model: User,
-          attributes: ['email'] // only select email from User
+          attributes: ['email'] 
         }]
       });
       res.json({ success: true, data });
@@ -17,7 +17,7 @@ export default class TechnicianController {
     }
   }
 
-  // GET technician by ID
+  // GET api/technicians/:techID - get technician by id
   async getTechnicianById(req, res, next) {
     const { techID } = req.params;
 
@@ -45,7 +45,7 @@ export default class TechnicianController {
     // GET /api/technicians/me - Get logged-in technician's profile
     async getMyTechnicianData(req, res, next) {
       try {
-        // Assuming req.user.id is set by your auth middleware
+        
         const technician = await Technician.findOne({
           where: { userID: req.user.id },
         });
@@ -63,7 +63,7 @@ export default class TechnicianController {
     }
   
 
-  // POST: Add technician
+  // POST /product/add - add technician data
   async addTechnician(req, res, next) {
     // Authorization check
     if (req.user.role !== "admin" && req.user.id !== req.body.userID) {
@@ -92,7 +92,7 @@ export default class TechnicianController {
   }
   
 
-  // PUT: Update technician
+  // PUT api/technicians/update/:techID -  Update technician
   async updateTechnician(req, res, next) {
     const { techID } = req.params;
 
@@ -124,7 +124,7 @@ export default class TechnicianController {
     }
   }
 
-  // DELETE technician
+  // DELETE api/technicians/delete/:techID -delete technician by id
   async deleteTechnician(req, res, next) {
     const { techID } = req.params;
   
@@ -162,7 +162,7 @@ export default class TechnicianController {
     }
   }
   
-
+// POST /api/technicians/addbyadmin - add technician by admin
   async addTechnicianByAdmin(req, res, next) {
     try {
       const { firstName, lastName, email, phone, password } = req.body;

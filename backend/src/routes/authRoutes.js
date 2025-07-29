@@ -1,5 +1,3 @@
-// routes/authRoutes.js
-
 import { Router } from "express";
 import AuthController from "../controllers/authController.js";
 import validateRequest from "../middlewares/validateRequest.js";
@@ -11,6 +9,7 @@ import {
 
 const router = Router();
 const authController = new AuthController();
+
 
 router.post(
   "/register",
