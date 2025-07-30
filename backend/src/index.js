@@ -10,7 +10,6 @@ import registrationRoute from "./routes/registrationRoute.js";
 import incidentRoute from './routes/incidentRoute.js';
 import countryRoute from "./routes/countryRoute.js";
 import authRoutes from "./routes/authRoutes.js"
-import userRoute from "./routes/userRoute.js"
 import profileRoute from "./routes/profileRoute.js";
 
 const app = express();
@@ -47,7 +46,6 @@ app.use('/api/registrations', registrationRoute);
 app.use('/api/incidents', incidentRoute);
 app.use('/api/countries', countryRoute);
 app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoute)
 app.use("/api/profile", profileRoute);
 
 
